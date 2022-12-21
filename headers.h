@@ -18,6 +18,26 @@ typedef short bool;
 #define SHKEY 300
 
 
+typedef enum AlgorithmType{
+    PHPF,
+    SRTN,
+    SJF
+};
+
+typedef enum ProcessState {
+    RUNNING, 
+    WAITING,
+};
+
+typedef struct PCB{
+    int id,  // id from the file
+    pid_t process_id,
+    ProcessState process_state,
+    int execution_time,
+    int waiting_time,
+    int remaining_time
+}
+
 ///==============================
 //don't mess with this variable//
 int * shmaddr;                 //
