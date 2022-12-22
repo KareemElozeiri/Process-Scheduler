@@ -22,11 +22,19 @@ typedef enum AlgorithmType{
     PHPF,
     SRTN,
     SJF
-};
+} AlgorithmType;
 
 typedef enum ProcessState {
     RUNNING, 
     WAITING,
+} ProcessState;
+
+
+typedef struct ProcessParameters{
+    int process_id;
+    int arrival_time;
+    int execution_time;
+    int priority;
 };
 
 typedef struct PCB{
