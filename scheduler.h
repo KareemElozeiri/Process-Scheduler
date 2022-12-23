@@ -30,10 +30,10 @@ void LogUpdate(PCB* p, LoggerState logger_state)
     switch (logger_state)
     {
     case STARTING_PROCESS:
-        fprintf(logging_file, "Process Started!\n"); 
+        fprintf(logging_file, "At time %d process %d started arr %d total %d remain %d wait %d\n", p->start_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time); 
         break;
     case FINISHING_PROCESS:
-        fprintf(logging_file, "Process Finished!\n"); 
+        fprintf(logging_file, "At time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %d\n", p->finish_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
         break;
     default:
         break;
@@ -85,8 +85,8 @@ void finished_process_pop()
         finished_process_rear = NULL;
     FinishedProcessNode* temp = finished_process_front;
     finished_process_front = finished_process_front->next;
-    free(temp->data);   //First free data
-    free(temp);
+    // free(temp->data);   //First free data
+    // free(temp);
 }
 
 // ================== PCB Queue ================== //
@@ -132,8 +132,8 @@ void pcb_pop()
         pcb_rear = NULL;
     PCBNode* temp = pcb_front;
     pcb_front = pcb_front->next;
-    free(temp->data);   //First free data
-    free(temp);
+    // free(temp->data);   //First free data
+    // free(temp);
 }
 
 //==================functions definations====================//
@@ -209,12 +209,13 @@ void recvProcess(){
 
         //extrating PCB obj parameters from the recieved object
         prc->id = recPrc.process_id;
-        printf("Rec Prc ID: %d\n", prc->id);
         prc->arrival_time =  recPrc.arrival_time;
         prc->priority = recPrc.priority;
         prc->execution_time = recPrc.execution_time;
         prc->remaining_time = recPrc.execution_time;
         prc->start_time = -1;
+        prc->waiting_time = 0;
+        printf("Rec Prc ID: %d, arr: %d\n", prc->id, prc->arrival_time);
 
 
         //enqueue to the PCB queue
@@ -237,7 +238,9 @@ void runSJF(){
     if(runningProcess == NULL && pcb_front != NULL) {
         runningProcess = pcb_front->data;
         pcb_pop();
-        forkNewProcess(runningProcess->remaining_time);
+        printf("RUNNING PROCESS: id: %d, arr: %d\n", runningProcess->id, runningProcess->arrival_time);
+        runningProcess->process_id = forkNewProcess(runningProcess->remaining_time);
+        runningProcess->start_time = getClk();
         LogUpdate(runningProcess, STARTING_PROCESS);
         test = 1;
     }
