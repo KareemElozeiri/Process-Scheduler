@@ -2,3 +2,4 @@
 .vscode
 output/*
 processes.txt
+*.gch
