@@ -37,6 +37,8 @@ typedef enum ProcessState {
 typedef enum LoggerState {
     STARTING_PROCESS,
     FINISHING_PROCESS,
+    STOPPING_PROCESS,
+    RESUMING_PROCESS,
 } LoggerState;
 
 typedef struct ProcessParameters{
