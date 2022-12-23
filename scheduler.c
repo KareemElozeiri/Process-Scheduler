@@ -20,6 +20,8 @@ int main(int argc, char * argv[])
 
     printf("Algorithm: %d\n", algo);
     printf("Processes Count: %d\n", processesCount);
+
+    InitiateLogger();
     
     
     while(true){

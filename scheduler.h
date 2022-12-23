@@ -6,6 +6,42 @@ int processesCount;
 PCB* runningProcess = NULL;
 int test = 0;
 
+// Logging File
+FILE* logging_file;
+
+// ================== Logger ================== //
+
+void InitiateLogger() {
+    logging_file = fopen("Scheduler.log", "w");
+    if (logging_file == NULL)
+    {
+        perror("Error in Scheduler.log Creation/Opening!");
+        exit(EXIT_FAILURE);
+    }
+    // Log the heading
+    fprintf(logging_file, "#At time x process y state arr w total z remain y wait k\n"); 
+    fclose(logging_file);
+    // Open in append mode
+    logging_file = fopen("Scheduler.log", "a");
+}
+
+void LogUpdate(PCB* p, LoggerState logger_state)
+{
+    switch (logger_state)
+    {
+    case STARTING_PROCESS:
+        fprintf(logging_file, "Process Started!\n"); 
+        break;
+    case FINISHING_PROCESS:
+        fprintf(logging_file, "Process Finished!\n"); 
+        break;
+    default:
+        break;
+    }
+    fclose(logging_file);
+    logging_file = fopen("Scheduler.log", "a");
+}
+
 // ================== Finished Processes Queue ================== //
 typedef struct FinishedProcessNode
 {
@@ -198,10 +234,11 @@ void runSRTN(){
 }
 
 void runSJF(){
-    if(runningProcess==NULL && pcb_front!=NULL){
+    if(runningProcess == NULL && pcb_front != NULL) {
         runningProcess = pcb_front->data;
         pcb_pop();
         forkNewProcess(runningProcess->remaining_time);
+        LogUpdate(runningProcess, STARTING_PROCESS);
         test = 1;
     }
     
@@ -237,6 +274,7 @@ void FinalizeProcessParameters(PCB* p) {
     p->turnaround_time = p->finish_time - p->arrival_time;
     p->weighted_turnaround_time = p->turnaround_time / (float) p->execution_time;
     p->weighted_turnaround_time = round (p->weighted_turnaround_time * 100) / 100;
+    LogUpdate(p, FINISHING_PROCESS);
 }
 
 void RegisterFinishedProcess(PCB* p) {
