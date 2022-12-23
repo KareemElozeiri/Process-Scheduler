@@ -155,6 +155,7 @@ void swap(int ind1, int ind2)
 
 void pcb_enqueue(PCB *val)
 {
+    printf("Enqueued Priority: %d",val->priority);
     pcb_qSize++;
     PCBNode *newNode = malloc(sizeof(PCBNode));
     newNode->next = NULL;
@@ -189,7 +190,7 @@ void pcb_enqueue(PCB *val)
 
         }
         else{
-            if(newNode->data->priority<pcb_front->data->priority){
+            if(newNode->data->priority>pcb_front->data->priority){
                 newNode->next = pcb_front;
                 pcb_front = newNode;
                 return;
@@ -197,7 +198,7 @@ void pcb_enqueue(PCB *val)
             PCBNode* prev = pcb_front;
             PCBNode* next = pcb_front->next;
             while(next!=NULL){
-                if(newNode->data->priority<next->data->priority){
+                if(newNode->data->priority>next->data->priority){
                     newNode->next = next;
                     prev->next = newNode;
                     return;
@@ -298,7 +299,8 @@ void stopProcess(){
     }
     printf("Stopped Process %d\n", runningProcess->id);
     runningProcess->remaining_time = getClk()-runningProcess->start_time;
-    enqueue(runningProcess);
+
+    pcb_enqueue(runningProcess);
     runningProcess = NULL;
 }
 
