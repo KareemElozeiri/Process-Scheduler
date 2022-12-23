@@ -6,6 +6,56 @@ AlgorithmType algo;
 int processesCount;
 PCB* runningProcess = NULL;
 
+
+// ================== PCB Queue ================== //
+typedef struct PCBNode
+{
+    PCB *data;
+    struct PCBNode *next;
+} PCBNode;
+PCBNode *pcb_front = NULL, *pcb_rear = NULL;
+int pcb_qSize = 0;  //would equal total number of pcbs when the program exits
+void pcb_pop();     //throws front and frees memory
+void pcb_enqueue(PCB *val);
+
+void pcb_enqueue(PCB *val)
+{
+    pcb_qSize++;
+    PCBNode *newNode = malloc(sizeof(PCBNode));
+    newNode->next = NULL;
+    newNode->data = val;
+    
+    //First node to be added
+    if(pcb_front == NULL && pcb_rear == NULL)
+    {
+        //make both front and rear points to newNode
+        pcb_front = newNode;
+        pcb_rear = newNode;
+    }
+    else //not the first
+    {
+        //add newNode in rear->next
+        pcb_rear->next = newNode;
+
+        //make newNode as the rear Node
+        pcb_rear = newNode;
+    }
+}
+
+void pcb_pop()
+{
+    if(pcb_front == NULL)
+        return;
+    if(pcb_front == pcb_rear)
+        pcb_rear = NULL;
+    PCBNode* temp = pcb_front;
+    pcb_front = pcb_front->next;
+    free(temp->data);   //First free data
+    free(temp);
+}
+
+//==================functions definations====================//
+
 //============ Functions  Definations    =====================//
 
 //process operations
