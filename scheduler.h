@@ -444,8 +444,6 @@ void CalculatePerf(PerfCalculation* perf) {
         perf->WTA_std += (finished_processes[i]->weighted_turnaround_time - avg_WTA) * (finished_processes[i]->weighted_turnaround_time - avg_WTA);
     }
     perf->WTA_std = perf->WTA_std / processesCount;
-    
-    free(finished_processes);
 }
 
 void LogPerfCalculations()
@@ -454,7 +452,7 @@ void LogPerfCalculations()
     perf_calculations_file = fopen("Scheduler.perf", "w");
     PerfCalculation* perf_calculations;
     CalculatePerf(perf_calculations);
-    fprintf(perf_calculations_file, "CPU utilization =  %.6f\%\n", perf_calculations->cpu_util);
+    fprintf(perf_calculations_file, "CPU utilization =  %.6f%%\n", perf_calculations->cpu_util);
     fprintf(perf_calculations_file, "Avg WTA =  %.6f\n", perf_calculations->avg_WTA);
     fprintf(perf_calculations_file, "Avg Waiting =  %.6f\n", perf_calculations->avg_waiting_time);
     fprintf(perf_calculations_file, "Std WTA =  %.6f\n", perf_calculations->WTA_std);
