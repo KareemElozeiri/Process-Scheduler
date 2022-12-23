@@ -19,10 +19,14 @@ Node *front = NULL,
 Node* prQueue; 
 int qSize = 0;
 void enqueue(Node* data);
-void dequeue();
-Node* peak();
+void dequeue(Node** T);
+bool peak(Node** T);
+bool isEmpty();
 
 
+
+
+///--------------------------implemenetaions------------------------///////
 void enqueue(Node *data)
 {
     Node *new = newNode(data->data, data->priority);
@@ -88,18 +92,24 @@ void enqueue(Node *data)
     }
 }
 
-void dequeue()
+void dequeue(Node** T)
 {
     Node* temp = prQueue;
     prQueue = temp->next;
+    *T = temp;
     free(temp);
 }
 
-Node *peak()
+bool peak(Node** T)
 {
     if (qSize == 0)
-        return NULL;
-    return prQueue;
+        return 0;
+    *T = prQueue;
+    return 1;
 }
 
+bool isEmpty(){
+    if(qSize==0) return 1;
+    else return 0;
+}
 
