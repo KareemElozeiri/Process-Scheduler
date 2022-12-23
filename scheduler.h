@@ -366,7 +366,22 @@ void runPHPF(){
 
 
 void runSRTN(){
-
+    if(runningProcess == NULL && pcb_front != NULL) {
+        runningProcess = pcb_front->data;
+        pcb_pop();
+        printf("RUNNING PROCESS: id: %d, arr: %d\n", runningProcess->id, runningProcess->arrival_time);
+        runningProcess->process_id = forkNewProcess(runningProcess->remaining_time);
+        runningProcess->start_time = getClk();
+        LogUpdate(runningProcess, STARTING_PROCESS);
+    }
+    
+    if(runningProcess != NULL && pcb_front!=NULL) {
+        runningProcess->remaining_time -= (getClk() - runningProcess->start_time);
+        if(runningProcess->remaining_time > pcb_front->data->execution_time) {
+            stopProcess();
+            runSRTN();
+        }
+    }
 }
 
 void runSJF(){
