@@ -7,6 +7,7 @@ int main(int argc, char * argv[])
 {
     
     signal(SIGUSR1, handleProcessArrival);
+    signal(SIGUSR2, handleProcessFinished);
 
 
 

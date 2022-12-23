@@ -1,9 +1,10 @@
 #pragma once 
 #include "headers.h"
 
+
 AlgorithmType algo;
 int processesCount;
-
+PCB* runningProcess = NULL;
 
 //============ Functions  Definations    =====================//
 
@@ -75,6 +76,7 @@ void recvProcess(){
 
         //extrating PCB obj parameters from the recieved object
         prc->id = recPrc.process_id;
+        printf("Rec Prc ID: %d\n", prc->id);
         prc->arrival_time =  recPrc.arrival_time;
         prc->priority = recPrc.priority;
         prc->execution_time = recPrc.execution_time;
@@ -90,6 +92,7 @@ void recvProcess(){
 
 void runPHPF(){
 
+
 }
 
 
@@ -98,9 +101,12 @@ void runSRTN(){
 }
 
 void runSJF(){
-    recvProcess();
+    // if(!(runningProcess) && PCBQueue.front){
+
+    // }
     
 }
+
 
 void runAlgo(){
     switch(algo){
@@ -119,5 +125,11 @@ void runAlgo(){
 
 void handleProcessArrival(int signum){
     recvProcess();
+    runAlgo();
+}
+
+
+void handleProcessFinished(int signum){
+    runningProcess = NULL;
     runAlgo();
 }
