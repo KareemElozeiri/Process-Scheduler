@@ -41,6 +41,13 @@ typedef enum LoggerState {
     RESUMING_PROCESS,
 } LoggerState;
 
+typedef struct PerfCalculation {
+    float cpu_util;
+    float avg_WTA;
+    float avg_waiting_time;
+    float WTA_std;
+} PerfCalculation;
+
 typedef struct ProcessParameters{
     int process_id;
     int arrival_time;

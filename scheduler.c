@@ -24,8 +24,15 @@ int main(int argc, char * argv[])
     InitiateLogger();
     
     
-    while(true){
-        pause();
+    while(true) {
+        printf("Finished Processes: %d\n", finished_process_qSize);
+        printf("Processes Count: %d\n", processesCount);
+        if (finished_process_qSize == processesCount) {
+            LogPerfCalculations();
+            break;
+        } else {
+            pause();
+        }
     }
 
     destroyClk(true);
