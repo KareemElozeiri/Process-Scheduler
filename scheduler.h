@@ -102,6 +102,58 @@ int pcb_qSize = 0;  //would equal total number of pcbs when the program exits
 void pcb_pop();     //throws front and frees memory
 void pcb_enqueue(PCB *val);
 
+
+//==================Priority queue========//
+PCB** prQueue; //shares same functions with Queue
+void sortTime(int index);
+void sortPriority(int index);
+void swap(int ind1, int ind2);
+
+void sortPriority(int index)
+{
+    int least = index, left = 2 * index, right = left + 1;
+
+    if((left <= pcb_qSize) && (prQueue[left]->priority < prQueue[least]->priority))
+		least = left;
+	
+	if((right <= pcb_qSize) && (prQueue[right]->priority < prQueue[least]->priority))
+		least = right;
+
+	if(least == index)
+		return;
+
+	swap(least, index);
+	sortPriority(least);
+}
+
+void sortTime(int index)
+{
+    int least = index, left = 2 * index, right = left + 1;
+
+    if((left <= pcb_qSize) && (prQueue[left]->remaining_time < prQueue[least]->remaining_time))
+		least = left;
+	
+	if((right <= pcb_qSize) && (prQueue[right]->remaining_time < prQueue[least]->remaining_time))
+		least = right;
+
+	if(least == index)
+		return;
+    
+	swap(least, index);
+	sortTime(least);
+}
+
+
+
+void swap(int ind1, int ind2)
+{
+    PCB* tmp = prQueue[ind1];
+    prQueue[ind1] = prQueue[ind2];
+    prQueue[ind2] = tmp;
+}
+//=================implementations=============//
+
+
 void pcb_enqueue(PCB *val)
 {
     pcb_qSize++;
@@ -118,12 +170,75 @@ void pcb_enqueue(PCB *val)
     }
     else //not the first
     {
+        if(algo==SJF || algo==SRTN){
+            if(newNode->data->remaining_time<pcb_front->data->remaining_time){
+                newNode->next = pcb_front;
+                pcb_front = newNode;
+                return;
+            }
+            PCBNode* prev = pcb_front;
+            PCBNode* next = pcb_front->next;
+            while(next!=NULL){
+                if(newNode->data->remaining_time<next->data->remaining_time){
+                    newNode->next = next;
+                    prev->next = newNode;
+                    return;
+                }
+                prev = prev->next;
+                next = next->next;
+            }
+
+        }
+        else{
+            if(newNode->data->priority<pcb_front->data->priority){
+                newNode->next = pcb_front;
+                pcb_front = newNode;
+                return;
+            }
+            PCBNode* prev = pcb_front;
+            PCBNode* next = pcb_front->next;
+            while(next!=NULL){
+                if(newNode->data->priority<next->data->priority){
+                    newNode->next = next;
+                    prev->next = newNode;
+                    return;
+                }
+                prev = prev->next;
+                next = next->next;
+            }
+
+        }
         //add newNode in rear->next
         pcb_rear->next = newNode;
 
         //make newNode as the rear Node
         pcb_rear = newNode;
     }
+
+    // printf("test1\n");
+    // int new_index = pcb_qSize+1;
+    // prQueue[new_index] = val; //ignoring 0 index by post-increment
+    // printf("test1\n");
+    // if(pcb_qSize <= 1){
+    //     printf("test1\n");
+    //     return;
+    // }
+    
+    // printf("test1\n");
+    // if(algo == SRTN || algo==SJF){
+    //     for(int i = pcb_qSize/2; i > 0; i--){
+    //         printf("test\n");
+    //         sortTime(i); //heapify from parent
+    //     }
+    // }
+    // else if(algo == PHPF){
+    //     for(int i = pcb_qSize/2; i > 0; i--){
+    //         printf("test\n");
+    //         sortPriority(i);
+
+    //     }
+    // }
+
 }
 
 void pcb_pop()
@@ -134,8 +249,7 @@ void pcb_pop()
         pcb_rear = NULL;
     PCBNode* temp = pcb_front;
     pcb_front = pcb_front->next;
-    // free(temp->data);   //First free data
-    // free(temp);
+  
 }
 
 //==================functions definations====================//
@@ -292,6 +406,7 @@ void handleProcessFinished(int signum){
     runningProcess = NULL;
     runAlgo();
 }
+
 
 
 // ================ Perf Calculations ================= //
