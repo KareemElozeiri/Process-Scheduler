@@ -55,6 +55,7 @@ typedef struct PCB{
 typedef struct Node
 {
     PCB *data;
+    int priority;
     struct Node *next;
 }Node;
 
