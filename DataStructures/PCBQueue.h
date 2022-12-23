@@ -7,8 +7,9 @@ int qSize = 0;
 void enqueue(PCB* data);
 PCB* dequeue();
 PCB* peak();
-void _heapifySRTN(int index);
-void _heapifySJF(int index);
+void heapify_SRTN(int index);
+void heapify_SJF(int index);
+void heapify_PHPF(int index);
 
 
 

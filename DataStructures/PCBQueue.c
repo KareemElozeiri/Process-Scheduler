@@ -54,11 +54,34 @@ PCB* peak()
     return prQueue[1];
 }
 
-void _heapifySRTN(int index)
+void heapify_SRTN(int index)
+{
+    int least = index, left = 2 * index, right = left + 1;
+
+    if((left <= qSize) && (prQueue[left]->remaining_time < prQueue[least]->remaining_time))
+		least = left;
+	
+	if((right <= qSize) && (prQueue[right]->remaining_time < prQueue[least]->remaining_time))
+		least = right;
+
+	if(least == index)
+		return;
+    
+	swap_PCB_of_index(least, index);
+	heapify_SRTN(least);
+}
+void heapify_SJF(int index)
+{
+    
+}
+void heapify_PHPF(int index)
 {
 
 }
-void _heapifySJF(int index)
+
+void swap_PCB_of_index(int i, int j)
 {
-    
+    PCB* tmp = prQueue[i];
+    prQueue[i] = prQueue[j];
+    prQueue[j] = tmp;
 }
