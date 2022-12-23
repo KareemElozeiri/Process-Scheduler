@@ -1,7 +1,7 @@
 #include "../headers.h"
 
 
-algo = 2; //for testing
+int algo = 2; //for testing
 Node* newNode(PCB* d, int p)
 {
     Node* temp = (Node*)malloc(sizeof(Node));
@@ -34,26 +34,37 @@ void enqueue(Node *data)
     }
     else if (algo == SJF)
     {
-        if (qSize == 1)
+        //this doesn't check the head as it is non-premative
+        Node *temp = prQueue;
+        int newTime = new->data->execution_time;
+
+        while ((temp->next != NULL) && (temp->next->data->execution_time < newTime))
         {
-            prQueue->next = new;
-            return;
+            temp = temp->next;
+        }
+        new->next = temp->next;
+        temp->next = new;
+    }
+
+    if (algo == SRTN)
+    {
+        Node *temp = prQueue;
+        int newTime = new->data->remaining_time;
+
+        if(prQueue->data->remaining_time > newTime)
+        {
+            new->next = prQueue;
+            prQueue = new;
         }
         else
         {
-            Node *temp = prQueue;
-            while (temp->next->data->execution_time < new->data->execution_time)
+            while ((temp->next != NULL) && (temp->next->data->remaining_time < newTime))
             {
                 temp = temp->next;
             }
             new->next = temp->next;
             temp->next = new;
         }
-    }
-
-    if (algo == SRTN)
-    {
-
     }
     else if (algo == PHPF)
     {
