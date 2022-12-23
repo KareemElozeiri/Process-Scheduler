@@ -30,8 +30,8 @@ typedef enum AlgorithmType{
 } AlgorithmType;
 
 typedef enum ProcessState {
-    RUNNING, 
-    WAITING,
+    STOPPED, 
+    READY,
 } ProcessState;
 
 typedef enum LoggerState {
