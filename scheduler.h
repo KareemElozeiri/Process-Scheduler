@@ -92,8 +92,8 @@ void finished_process_pop()
         finished_process_rear = NULL;
     FinishedProcessNode* temp = finished_process_front;
     finished_process_front = finished_process_front->next;
-    // free(temp->data);   //First free data
-    // free(temp);
+    free(temp->data);   //First free data
+    free(temp);
 }
 
 // ================== PCB Queue ================== //
@@ -304,7 +304,7 @@ void stopProcess(){
         exit(EXIT_FAILURE);
     }
     printf("Stopped Process %d\n", runningProcess->id);
-    runningProcess->remaining_time = getClk()-runningProcess->start_time;
+    runningProcess->remaining_time -= (getClk()-runningProcess->start_time) - 1;
     runningProcess->stop_time = getClk();
     runningProcess->process_state = STOPPED;
     LogUpdate(runningProcess, STOPPING_PROCESS);
@@ -385,7 +385,7 @@ void runSRTN(){
     
     if(runningProcess != NULL && pcb_front!=NULL) {
         runningProcess->remaining_time -= (getClk() - runningProcess->start_time);
-        if(runningProcess->remaining_time > pcb_front->data->execution_time) {
+        if(runningProcess->remaining_time > pcb_front->data->remaining_time) {
             stopProcess();
             runSRTN();
         }
@@ -473,7 +473,7 @@ void CalculatePerf(PerfCalculation* perf) {
     }
 
     float cpu_util = (1.0 * total_execution_time / (getClk() - 1)) * 100;
-    float avg_WTA = (float)total_WTA / processesCount;    
+    float avg_WTA = (float)total_WTA / processesCount;
     float avg_waiting_time = (float)total_waiting_time / processesCount;
 
     perf->cpu_util = cpu_util;
@@ -486,6 +486,8 @@ void CalculatePerf(PerfCalculation* perf) {
         perf->WTA_std += (finished_processes[i]->weighted_turnaround_time - avg_WTA) * (finished_processes[i]->weighted_turnaround_time - avg_WTA);
     }
     perf->WTA_std = perf->WTA_std / processesCount;
+    
+    free(finished_processes); // Clear dynamic array of finished processes
 }
 
 void LogPerfCalculations()
