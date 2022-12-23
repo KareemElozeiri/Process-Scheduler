@@ -27,7 +27,6 @@ void pcb_enqueue(PCB *val);
 
 void pcb_enqueue(PCB *val)
 {
-    printf("Enqueued Priority: %d",val->priority);
     pcb_qSize++;
     PCBNode *newNode = malloc(sizeof(PCBNode));
     newNode->next = NULL;
