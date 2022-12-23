@@ -44,9 +44,8 @@ int main(int argc, char * argv[])
 
     printf("All processes have been sent to the scheduler!\n");
     pause(); // Wait until the scheduler finishes
-    
-    destroyMsgQueue();
-    destroyClk(true);
+
+    clearResources(0);
 }
 
 void clearResources(int signum)
