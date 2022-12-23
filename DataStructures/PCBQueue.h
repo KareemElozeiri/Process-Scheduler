@@ -13,15 +13,13 @@ Node* newNode(PCB* d, int p)
 }
 
 
-
-
 Node *front = NULL,
  *rear = NULL;
 
 Node* prQueue; 
 int qSize = 0;
 void enqueue(Node* data);
-Node* dequeue();
+void dequeue();
 Node* peak();
 
 
@@ -62,28 +60,12 @@ void enqueue(Node *data)
     }
 }
 
-// Node *dequeue()
-// {
-//     if (algo == PHPF)
-//     {
-//     }
-
-//     if (qSize == 0)
-//         return NULL;
-//     prQueue[1] = prQueue[qSize--];
-
-//     if (qSize > 1)
-//     {
-//         if (algo == SRTN)
-//         {
-//             _heapifySRTN(1);
-//         }
-//         else if (algo == SJF)
-//         {
-//         }
-//     }
-//     return prcs;
-// }
+void dequeue()
+{
+    Node* temp = prQueue;
+    prQueue = temp->next;
+    free(temp);
+}
 
 Node *peak()
 {
