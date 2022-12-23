@@ -68,8 +68,9 @@ typedef struct PCB{
     int remaining_time;
     int start_time;
     int finish_time;
-    int turnaround_time;
-    int weighted_turnaround_time;
+    int stop_time;
+    float turnaround_time;
+    float weighted_turnaround_time;
 }PCB;
 
 typedef struct Node

@@ -17,10 +17,6 @@ int main(int argc, char * argv[])
 
     initClk();
     initMsgQueue();
-
-    printf("Algorithm: %d\n", algo);
-    printf("Processes Count: %d\n", processesCount);
-
     InitiateLogger();
     
     

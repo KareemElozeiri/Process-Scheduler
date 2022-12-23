@@ -34,13 +34,13 @@ void LogUpdate(PCB* p, LoggerState logger_state)
         fprintf(logging_file, "At time %d process %d started arr %d total %d remain %d wait %d\n", p->start_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time); 
         break;
     case FINISHING_PROCESS:
-        fprintf(logging_file, "At time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %d\n", p->finish_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
+        fprintf(logging_file, "At time %d process %d finished arr %d total %d remain %d wait %d TA %f WTA %f\n", p->finish_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
         break;
     case STOPPING_PROCESS:
-        fprintf(logging_file, "At time %d process %d stopped arr %d total %d remain %d wait %d TA %d WTA %d\n", p->finish_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
+        fprintf(logging_file, "At time %d process %d stopped arr %d total %d remain %d wait %d TA %f WTA %f\n", p->stop_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
         break;
     case RESUMING_PROCESS:
-        fprintf(logging_file, "At time %d process %d resumed arr %d total %d remain %d wait %d TA %d WTA %d\n", p->finish_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
+        fprintf(logging_file, "At time %d process %d resumed arr %d total %d remain %d wait %d TA %f WTA %f\n", p->start_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
         break;
     default:
         break;
@@ -305,6 +305,7 @@ void stopProcess(){
     }
     printf("Stopped Process %d\n", runningProcess->id);
     runningProcess->remaining_time = getClk()-runningProcess->start_time;
+    runningProcess->stop_time = getClk();
     runningProcess->process_state = STOPPED;
     LogUpdate(runningProcess, STOPPING_PROCESS);
     pcb_enqueue(runningProcess);
@@ -330,6 +331,8 @@ void recvProcess(){
         prc->start_time = -1;
         prc->waiting_time = 0;
         prc->process_state = READY;
+        prc->turnaround_time = 0;
+        prc->weighted_turnaround_time = 0;
         printf("Rec Prc ID: %d, arr: %d\n", prc->id, prc->arrival_time);
 
 
@@ -372,7 +375,12 @@ void runSRTN(){
         printf("RUNNING PROCESS: id: %d, arr: %d\n", runningProcess->id, runningProcess->arrival_time);
         runningProcess->process_id = forkNewProcess(runningProcess->remaining_time);
         runningProcess->start_time = getClk();
-        LogUpdate(runningProcess, STARTING_PROCESS);
+        if(runningProcess->process_state!=STOPPED){
+            LogUpdate(runningProcess, STARTING_PROCESS);
+        }
+        else{
+            LogUpdate(runningProcess, RESUMING_PROCESS);
+        }
     }
     
     if(runningProcess != NULL && pcb_front!=NULL) {
@@ -425,7 +433,7 @@ void FinalizeProcessParameters(PCB* p) {
     p->waiting_time = p->finish_time - p->arrival_time - p->execution_time;
     p->turnaround_time = p->finish_time - p->arrival_time;
     p->weighted_turnaround_time = p->turnaround_time / (float) p->execution_time;
-    p->weighted_turnaround_time = round (p->weighted_turnaround_time * 100) / 100;
+//    p->weighted_turnaround_time = round (p->weighted_turnaround_time * 100) / 100;
     LogUpdate(p, FINISHING_PROCESS);
 }
 
@@ -465,8 +473,8 @@ void CalculatePerf(PerfCalculation* perf) {
     }
 
     float cpu_util = (1.0 * total_execution_time / (getClk() - 1)) * 100;
-    float avg_WTA = total_WTA / processesCount;    
-    float avg_waiting_time = total_waiting_time / processesCount;
+    float avg_WTA = (float)total_WTA / processesCount;    
+    float avg_waiting_time = (float)total_waiting_time / processesCount;
 
     perf->cpu_util = cpu_util;
     perf->avg_WTA = avg_WTA;

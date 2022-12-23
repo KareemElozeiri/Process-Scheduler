@@ -18,7 +18,7 @@ int main(int agrc, char * argv[])
     }
 
     int startTime = getClk();
-    int finishTime = getClk()+remainingtime;
+    int finishTime = getClk()+remainingtime+1;
 
     while (getClk()!=finishTime)
     {
