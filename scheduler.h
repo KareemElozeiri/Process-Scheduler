@@ -4,6 +4,7 @@
 
 // TODO implement queue for PCBs
 
+AlgorithmType algo;
 
 
 //============ Functions  Definations    =====================//
