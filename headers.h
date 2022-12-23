@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <math.h>
 
 typedef short bool;
 #define true 1
@@ -53,6 +54,9 @@ typedef struct PCB{
     int waiting_time;
     int remaining_time;
     int start_time;
+    int finish_time;
+    int turnaround_time;
+    int weighted_turnaround_time;
 }PCB;
 
 typedef struct Node
