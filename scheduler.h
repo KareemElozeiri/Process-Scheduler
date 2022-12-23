@@ -1,6 +1,6 @@
 #pragma once 
 #include "headers.h"
-
+#include "DataStructures/PCBQueue.h"
 
 AlgorithmType algo;
 int processesCount;
@@ -8,17 +8,15 @@ int processesCount;
 
 //============ Functions  Definations    =====================//
 
-//process operations :: No clear implementation yet
+//process operations
 int forkNewProcess();
 void startProcess();
 void stopProcess();
 
 
+
 //communication with process_generator
 void recvProcess();
-
-
-
 
 //-------------- Scheduling Algorithms ------------//
 void runPHPF();
@@ -28,8 +26,13 @@ void runSJF();
 
 void runAlgo(); // runs choosen algo by the user in process generator
 
-void clearResources(); // for clearing on exit
 
+
+//hanlder for user defined signal
+void handleUser1(int signum);
+
+// for clearing on exit
+void clearResources(); 
 
 
 //================ Functions Implementations ===============//
@@ -54,6 +57,7 @@ void recvProcess(){
 
 
         //enqueue to the PCB queue
+        enqueue(prc);
 
     }
 }
@@ -68,6 +72,7 @@ void runSRTN(){
 }
 
 void runSJF(){
+    recvProcess();
     
 }
 
@@ -85,3 +90,8 @@ void runAlgo(){
     }
 }
 
+
+void handleUser1(int signum){
+    recvProcess();
+    runAlgo();
+}
