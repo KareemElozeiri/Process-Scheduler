@@ -2,9 +2,12 @@
 #include "scheduler.h"
 
 
+
 int main(int argc, char * argv[])
 {
     
+    signal(SIGUSR1, handleProcessArrival);
+
 
 
     algo = atoi(argv[1]);
@@ -16,8 +19,7 @@ int main(int argc, char * argv[])
 
     printf("Algorithm: %d\n", algo);
     printf("Processes Count: %d\n", processesCount);
-    //TODO implement the scheduler :)
-    //upon termination release the clock resources
+    
     
     while(true){
         pause();

@@ -6,14 +6,25 @@ int remainingtime;
 int main(int agrc, char * argv[])
 {
     initClk();
-    
-    //TODO it needs to get the remaining time from somewhere
-    //remainingtime = ??;
+
+
+    remainingtime = atoi(argv[1]);
+    int schedulerPid = atoi(argv[2]);
+    int schedulerClk = atoi(argv[3]);
+
+    if(remainingtime>0 && getClk()!=schedulerClk){
+        remainingtime--;
+    }
+
     while (remainingtime > 0)
     {
-        // remainingtime = ??;
+        remainingtime--;
     }
     
+
+
+    kill(schedulerPid, SIGUSR2);
+
     destroyClk(false);
     
     return 0;

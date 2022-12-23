@@ -24,20 +24,29 @@ int main(int argc, char * argv[])
     initClk();
     // To get time use this
     int current_time = getClk();
-    printf("current time is %d\n", current_time);
     // TODO Generation Main Loop
     // 5. Create a data structure for processes and provide it with its parameters.
     // 6. Send the information to the scheduler at the appropriate time.
     // 7. Clear clock resources
-    while(process_front){
+    while(processesCount) {
         current_time = getClk();
-
+        kill(clock_pid, SIGSTOP);
+        while(process_front->data->arrival_time == current_time) {
+            msgQueueSendPrc(process_front->data);
+            // Notify the scheduler that a process arrived
+            kill(scheduler_pid, SIGUSR1);
+            process_pop();
+            processesCount--;
+            if (processesCount == 0) break;
+        }
+        kill(clock_pid, SIGCONT);
     }
 
-
+    printf("All processes have been sent to the scheduler!\n");
+    pause(); // Wait until the scheduler finishes
+    
     destroyMsgQueue();
     destroyClk(true);
-
 }
 
 void clearResources(int signum)
