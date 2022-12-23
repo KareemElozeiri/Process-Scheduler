@@ -34,6 +34,10 @@ typedef enum ProcessState {
     WAITING,
 } ProcessState;
 
+typedef enum LoggerState {
+    STARTING_PROCESS,
+    FINISHING_PROCESS,
+} LoggerState;
 
 typedef struct ProcessParameters{
     int process_id;

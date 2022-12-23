@@ -3,3 +3,4 @@
 output/*
 processes.txt
 *.gch
+Scheduler.log
