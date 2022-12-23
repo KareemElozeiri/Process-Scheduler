@@ -56,7 +56,7 @@ void process_pop()
 }
 
 //==================functions definations====================//
-
+void readInputFile();
 void getUserAlgo();
 
 void startClk();

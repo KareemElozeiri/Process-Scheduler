@@ -5,22 +5,22 @@ void clearResources(int);
 
 int main(int argc, char * argv[])
 {
+    //clearing resources on interrupt signal
     signal(SIGINT, clearResources);
-    // TODO Initialization
-    // 1. Read the input files. ===>done
-    // 2. Ask the user for the chosen scheduling algorithm and its parameters, if there are any. ===>done
-    // 3. Initiate and create the scheduler and clock processes.                                 ===>done
-    // 4. Use this function after creating the clock process to initialize clock                 ===>done
+   
     readInputFile(); // Default Name: processes.txt
     getUserAlgo();
 
-
+    //initializing message queue
     initMsgQueue();
+    //starting scheduler and clock
     startScheduler();
     startClk();
+
     printf("Scheduler PID: %d\n", scheduler_pid);
     printf("Clock PID: %d\n", clock_pid);
 
+    
     initClk();
     // To get time use this
     int current_time = getClk();

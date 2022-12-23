@@ -7,94 +7,9 @@ PCB* runningProcess = NULL;
 
 // Logging File
 FILE* logging_file;
+// Statistics File
 FILE* perf_calculations_file;
 
-// ================== Logger ================== //
-
-void InitiateLogger()
-{
-    logging_file = fopen("Scheduler.log", "w");
-    if (logging_file == NULL)
-    {
-        perror("Error in Scheduler.log Creation/Opening!");
-        exit(EXIT_FAILURE);
-    }
-    // Log the heading
-    fprintf(logging_file, "#At time x process y state arr w total z remain y wait k\n"); 
-    fclose(logging_file);
-    // Open in append mode
-    logging_file = fopen("Scheduler.log", "a");
-}
-
-void LogUpdate(PCB* p, LoggerState logger_state)
-{
-    switch (logger_state)
-    {
-    case STARTING_PROCESS:
-        fprintf(logging_file, "At time %d process %d started arr %d total %d remain %d wait %d\n", p->start_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time); 
-        break;
-    case FINISHING_PROCESS:
-        fprintf(logging_file, "At time %d process %d finished arr %d total %d remain %d wait %d TA %f WTA %f\n", p->finish_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
-        break;
-    case STOPPING_PROCESS:
-        fprintf(logging_file, "At time %d process %d stopped arr %d total %d remain %d wait %d TA %f WTA %f\n", p->stop_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
-        break;
-    case RESUMING_PROCESS:
-        fprintf(logging_file, "At time %d process %d resumed arr %d total %d remain %d wait %d TA %f WTA %f\n", p->start_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
-        break;
-    default:
-        break;
-    }
-    fclose(logging_file);
-    logging_file = fopen("Scheduler.log", "a");
-}
-
-// ================== Finished Processes Queue ================== //
-typedef struct FinishedProcessNode
-{
-    PCB *data;
-    struct FinishedProcessNode *next;
-} FinishedProcessNode;
-FinishedProcessNode *finished_process_front = NULL, *finished_process_rear = NULL;
-int finished_process_qSize = 0;  //would equal total number of pcbs when the program exits
-void finished_process_enqueue(PCB *val);
-void finished_process_pop();     //throws front and frees memory
-
-void finished_process_enqueue(PCB *val)
-{
-    finished_process_qSize++;
-    FinishedProcessNode *newNode = malloc(sizeof(FinishedProcessNode));
-    newNode->next = NULL;
-    newNode->data = val;
-    
-    //First node to be added
-    if(finished_process_front == NULL && finished_process_rear == NULL)
-    {
-        //make both front and rear points to newNode
-        finished_process_front = newNode;
-        finished_process_rear = newNode;
-    }
-    else //not the first
-    {
-        //add newNode in rear->next
-        finished_process_rear->next = newNode;
-
-        //make newNode as the rear Node
-        finished_process_rear = newNode;
-    }
-}
-
-void finished_process_pop()
-{
-    if(finished_process_front == NULL)
-        return;
-    if(finished_process_front == finished_process_rear)
-        finished_process_rear = NULL;
-    FinishedProcessNode* temp = finished_process_front;
-    finished_process_front = finished_process_front->next;
-    free(temp->data);   //First free data
-    free(temp);
-}
 
 // ================== PCB Queue ================== //
 typedef struct PCBNode
@@ -107,55 +22,6 @@ int pcb_qSize = 0;  //would equal total number of pcbs when the program exits
 void pcb_pop();     //throws front and frees memory
 void pcb_enqueue(PCB *val);
 
-
-//==================Priority queue========//
-PCB** prQueue; //shares same functions with Queue
-void sortTime(int index);
-void sortPriority(int index);
-void swap(int ind1, int ind2);
-
-void sortPriority(int index)
-{
-    int least = index, left = 2 * index, right = left + 1;
-
-    if((left <= pcb_qSize) && (prQueue[left]->priority < prQueue[least]->priority))
-		least = left;
-	
-	if((right <= pcb_qSize) && (prQueue[right]->priority < prQueue[least]->priority))
-		least = right;
-
-	if(least == index)
-		return;
-
-	swap(least, index);
-	sortPriority(least);
-}
-
-void sortTime(int index)
-{
-    int least = index, left = 2 * index, right = left + 1;
-
-    if((left <= pcb_qSize) && (prQueue[left]->remaining_time < prQueue[least]->remaining_time))
-		least = left;
-	
-	if((right <= pcb_qSize) && (prQueue[right]->remaining_time < prQueue[least]->remaining_time))
-		least = right;
-
-	if(least == index)
-		return;
-    
-	swap(least, index);
-	sortTime(least);
-}
-
-
-
-void swap(int ind1, int ind2)
-{
-    PCB* tmp = prQueue[ind1];
-    prQueue[ind1] = prQueue[ind2];
-    prQueue[ind2] = tmp;
-}
 //=================implementations=============//
 
 
@@ -235,6 +101,99 @@ void pcb_pop()
   
 }
 
+
+
+
+// ================== Logger ================== //
+
+void InitiateLogger()
+{
+    logging_file = fopen("Scheduler.log", "w");
+    if (logging_file == NULL)
+    {
+        perror("Error in Scheduler.log Creation/Opening!");
+        exit(EXIT_FAILURE);
+    }
+    // Log the heading
+    fprintf(logging_file, "#At time x process y state arr w total z remain y wait k\n"); 
+    fclose(logging_file);
+    // Open in append mode
+    logging_file = fopen("Scheduler.log", "a");
+}
+
+void LogUpdate(PCB* p, LoggerState logger_state)
+{
+    switch (logger_state)
+    {
+    case STARTING_PROCESS:
+        fprintf(logging_file, "At time %d process %d started arr %d total %d remain %d wait %d\n", p->start_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time); 
+        break;
+    case FINISHING_PROCESS:
+        fprintf(logging_file, "At time %d process %d finished arr %d total %d remain %d wait %d TA %f WTA %f\n", p->finish_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
+        break;
+    case STOPPING_PROCESS:
+        fprintf(logging_file, "At time %d process %d stopped arr %d total %d remain %d wait %d TA %f WTA %f\n", p->stop_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
+        break;
+    case RESUMING_PROCESS:
+        fprintf(logging_file, "At time %d process %d resumed arr %d total %d remain %d wait %d TA %f WTA %f\n", p->start_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
+        break;
+    default:
+        break;
+    }
+    fclose(logging_file);
+    logging_file = fopen("Scheduler.log", "a");
+}
+
+// ================== Finished Processes Queue ================== //
+typedef struct FinishedProcessNode
+{
+    PCB *data;
+    struct FinishedProcessNode *next;
+} FinishedProcessNode;
+FinishedProcessNode *finished_process_front = NULL, *finished_process_rear = NULL;
+int finished_process_qSize = 0;  //would equal total number of pcbs when the program exits
+void finished_process_enqueue(PCB *val);
+void finished_process_pop();     //throws front and frees memory
+
+void finished_process_enqueue(PCB *val)
+{
+    finished_process_qSize++;
+    FinishedProcessNode *newNode = malloc(sizeof(FinishedProcessNode));
+    newNode->next = NULL;
+    newNode->data = val;
+    
+    //First node to be added
+    if(finished_process_front == NULL && finished_process_rear == NULL)
+    {
+        //make both front and rear points to newNode
+        finished_process_front = newNode;
+        finished_process_rear = newNode;
+    }
+    else //not the first
+    {
+        //add newNode in rear->next
+        finished_process_rear->next = newNode;
+
+        //make newNode as the rear Node
+        finished_process_rear = newNode;
+    }
+}
+
+//removes the process from the finished process from the finished processes queue 
+void finished_process_pop()
+{
+    if(finished_process_front == NULL)
+        return;
+    if(finished_process_front == finished_process_rear)
+        finished_process_rear = NULL;
+    FinishedProcessNode* temp = finished_process_front;
+    finished_process_front = finished_process_front->next;
+    free(temp->data);   //First free data
+    free(temp);
+}
+
+
+
 //==================functions definations====================//
 
 //============ Functions  Definations    =====================//
@@ -261,6 +220,13 @@ void runAlgo(); // runs choosen algo by the user in process generator
 //hanlder for handling processes arrival and finish
 void handleProcessArrival(int signum);
 void handleProcessFinish(int signum);
+
+
+void FinalizeProcessParameters(PCB* p);
+void RegisterFinishedProcess(PCB* p);
+void handleProcessFinished(int signum);
+void CalculatePerf(PerfCalculation* perf);
+void LogPerfCalculations();
 
 // for clearing on exit
 void clearResources(); 
@@ -422,6 +388,7 @@ void runAlgo(){
 }
 
 
+//SIGUSR1 handler function
 void handleProcessArrival(int signum){
     recvProcess();
     runAlgo();
@@ -453,6 +420,8 @@ void handleProcessFinished(int signum){
 
 // ================ Perf Calculations ================= //
 
+
+//resposible for statistics calculations 
 void CalculatePerf(PerfCalculation* perf) {
     float total_execution_time = 0;
     float total_WTA = 0;
@@ -489,7 +458,7 @@ void CalculatePerf(PerfCalculation* perf) {
     
     free(finished_processes); // Clear dynamic array of finished processes
 }
-
+//responsible for writing the statistics at the .perf file
 void LogPerfCalculations()
 {
     // Open in append mode

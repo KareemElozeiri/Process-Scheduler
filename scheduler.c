@@ -6,7 +6,9 @@
 int main(int argc, char * argv[])
 {
     
+    //defined user signal 1 for handling the arrival of new process from process_generator
     signal(SIGUSR1, handleProcessArrival);
+    //defined user signal 2 for handling finishing signal comming from the process.c
     signal(SIGUSR2, handleProcessFinished);
 
 
