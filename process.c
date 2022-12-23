@@ -13,7 +13,7 @@ int main(int agrc, char * argv[])
     int schedulerClk = atoi(argv[3]);
     printf("Process Started with remining time %d\n || Process PID: %d\n", remainingtime, getpid());
 
-    if(remainingtime>0 && getClk()!=schedulerClk){
+    if(remainingtime>=0 && getClk()!=schedulerClk){
         remainingtime--;
     }
 
