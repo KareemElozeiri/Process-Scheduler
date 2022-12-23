@@ -38,6 +38,33 @@ void clearResources();
 
 
 
+int forkNewProcess(int execution_time){
+    pid_t schedulerPid = getpid();
+    pid_t processPid = fork();
+
+    if(processPid==-1){
+        perror("Error while forking process!");
+        exit(FAILURE_CODE);
+    }
+    else if(processPid==0){
+        char stringExecutionTime[5] = {0};
+        char stringProcessPid[7] = {0};
+        char stringClkValue[7] = {0};
+        sprintf(stringSchedulerPid, "%d", schedulerPid);
+        sprintf(stringExecutionTime, "%d", execution_time);
+        sprintf(stringClkValue, "%d", getClk());
+        char *const paramList[] = {"./process.out", sExecutionTime, sPid, sClk,NULL};
+        execv("./process.out", paramList);
+        
+        //if it executes what is under this line, then execv has failed
+        perror("Error in execv'ing to clock");
+        exit(EXIT_FAILURE);
+    }
+
+    return processPid;
+}
+
+
 void recvProcess(){
     ProcessParameters recPrc;
     PCB* prc;
