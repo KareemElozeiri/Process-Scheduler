@@ -84,6 +84,7 @@ void readInputFile() {
         prc = (ProcessParameters*) malloc(sizeof(ProcessParameters));
         sscanf(line, "%d %d %d %d", &(prc->process_id), &(prc->arrival_time), &(prc->execution_time), &(prc->priority));
         process_enqueue(prc);
+        processesCount++;
     }
     printf("[+]: Input file read successfully!\n");
     fclose(input_file);
