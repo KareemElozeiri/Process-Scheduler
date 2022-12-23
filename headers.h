@@ -35,7 +35,7 @@ typedef struct ProcessParameters{
     int arrival_time;
     int execution_time;
     int priority;
-};
+}ProcessParameters;
 
 typedef struct PCB{
     int id; // id from the file
@@ -44,7 +44,14 @@ typedef struct PCB{
     int execution_time;
     int waiting_time;
     int remaining_time;
-};
+}PCB;
+
+typedef struct Node
+{
+    PCB *data;
+    struct Node *next;
+}Node;
+
 
 ///==============================
 //don't mess with this variable//
