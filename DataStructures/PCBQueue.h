@@ -1,7 +1,7 @@
 #include "../headers.h"
 
 
-algo = 2; //for testing
+int algo = 2; //for testing
 Node* newNode(PCB* d, int p)
 {
     Node* temp = (Node*)malloc(sizeof(Node));
@@ -13,15 +13,13 @@ Node* newNode(PCB* d, int p)
 }
 
 
-
-
 Node *front = NULL,
  *rear = NULL;
 
 Node* prQueue; 
 int qSize = 0;
 void enqueue(Node* data);
-Node* dequeue();
+void dequeue();
 Node* peak();
 
 
@@ -36,15 +34,31 @@ void enqueue(Node *data)
     }
     else if (algo == SJF)
     {
-        if (qSize == 1)
+        //this doesn't check the head as it is non-premative
+        Node *temp = prQueue;
+        int newTime = new->data->execution_time;
+
+        while ((temp->next != NULL) && (temp->next->data->execution_time < newTime))
         {
-            prQueue->next = new;
-            return;
+            temp = temp->next;
+        }
+        new->next = temp->next;
+        temp->next = new;
+    }
+
+    if (algo == SRTN)
+    {
+        Node *temp = prQueue;
+        int newTime = new->data->remaining_time;
+
+        if(prQueue->data->remaining_time > newTime)
+        {
+            new->next = prQueue;
+            prQueue = new;
         }
         else
         {
-            Node *temp = prQueue;
-            while (temp->next->data->execution_time < new->data->execution_time)
+            while ((temp->next != NULL) && (temp->next->data->remaining_time < newTime))
             {
                 temp = temp->next;
             }
@@ -52,38 +66,34 @@ void enqueue(Node *data)
             temp->next = new;
         }
     }
-
-    if (algo == SRTN)
-    {
-
-    }
     else if (algo == PHPF)
-    {
+    {//Preemptive Highest Priority First
+        Node *temp = prQueue;
+        int newPri = new->priority;
+
+        if(prQueue->priority < newPri)
+        {
+            new->next = prQueue;
+            prQueue = new;
+        }
+        else
+        {
+            while ((temp->next != NULL) && (temp->next->data->remaining_time > newPri))
+            {
+                temp = temp->next;
+            }
+            new->next = temp->next;
+            temp->next = new;
+        }
     }
 }
 
-// Node *dequeue()
-// {
-//     if (algo == PHPF)
-//     {
-//     }
-
-//     if (qSize == 0)
-//         return NULL;
-//     prQueue[1] = prQueue[qSize--];
-
-//     if (qSize > 1)
-//     {
-//         if (algo == SRTN)
-//         {
-//             _heapifySRTN(1);
-//         }
-//         else if (algo == SJF)
-//         {
-//         }
-//     }
-//     return prcs;
-// }
+void dequeue()
+{
+    Node* temp = prQueue;
+    prQueue = temp->next;
+    free(temp);
+}
 
 Node *peak()
 {
