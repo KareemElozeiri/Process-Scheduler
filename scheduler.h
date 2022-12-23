@@ -48,12 +48,12 @@ int forkNewProcess(int execution_time){
     }
     else if(processPid==0){
         char stringExecutionTime[5] = {0};
-        char stringProcessPid[7] = {0};
+        char stringSchedulerPid[7] = {0};
         char stringClkValue[7] = {0};
         sprintf(stringSchedulerPid, "%d", schedulerPid);
         sprintf(stringExecutionTime, "%d", execution_time);
         sprintf(stringClkValue, "%d", getClk());
-        char *const paramList[] = {"./process.out", sExecutionTime, sPid, sClk,NULL};
+        char *const paramList[] = {"./process.out", stringExecutionTime, stringSchedulerPid, stringSchedulerPid,NULL};
         execv("./process.out", paramList);
         
         //if it executes what is under this line, then execv has failed
