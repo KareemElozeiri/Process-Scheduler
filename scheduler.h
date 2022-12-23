@@ -43,7 +43,6 @@ void LogUpdate(PCB* p, LoggerState logger_state)
     logging_file = fopen("Scheduler.log", "a");
 }
 
-
 // ================== Finished Processes Queue ================== //
 typedef struct FinishedProcessNode
 {
@@ -215,30 +214,7 @@ void pcb_enqueue(PCB *val)
         pcb_rear = newNode;
     }
 
-    // printf("test1\n");
-    // int new_index = pcb_qSize+1;
-    // prQueue[new_index] = val; //ignoring 0 index by post-increment
-    // printf("test1\n");
-    // if(pcb_qSize <= 1){
-    //     printf("test1\n");
-    //     return;
-    // }
-    
-    // printf("test1\n");
-    // if(algo == SRTN || algo==SJF){
-    //     for(int i = pcb_qSize/2; i > 0; i--){
-    //         printf("test\n");
-    //         sortTime(i); //heapify from parent
-    //     }
-    // }
-    // else if(algo == PHPF){
-    //     for(int i = pcb_qSize/2; i > 0; i--){
-    //         printf("test\n");
-    //         sortPriority(i);
-
-    //     }
-    // }
-
+  
 }
 
 void pcb_pop()
@@ -258,7 +234,6 @@ void pcb_pop()
 
 //process operations
 int forkNewProcess();
-void startProcess();
 void stopProcess();
 
 
@@ -315,6 +290,18 @@ int forkNewProcess(int execution_time){
 }
 
 
+void stopProcess(){
+    if(kill(runningProcess->process_id, SIGSTOP) == -1)
+    {
+        perror("Error in stopping running process");
+        exit(EXIT_FAILURE);
+    }
+    printf("Stopped Process %d\n", runningProcess->id);
+    runningProcess->remaining_time = getClk()-runningProcess->start_time;
+    enqueue(runningProcess);
+    runningProcess = NULL;
+}
+
 void recvProcess(){
     ProcessParameters recPrc;
     PCB* prc;
@@ -341,6 +328,21 @@ void recvProcess(){
 }
 
 void runPHPF(){
+    if(runningProcess == NULL && pcb_front != NULL) {
+        runningProcess = pcb_front->data;
+        pcb_pop();
+        printf("RUNNING PROCESS: id: %d, arr: %d\n", runningProcess->id, runningProcess->arrival_time);
+        runningProcess->process_id = forkNewProcess(runningProcess->remaining_time);
+        runningProcess->start_time = getClk();
+        LogUpdate(runningProcess, STARTING_PROCESS);
+    }
+    else if(runningProcess != NULL && pcb_front!=NULL){
+        if(runningProcess->priority<pcb_front->data->priority){
+            stopProcess();
+            runPHPF();
+        }
+    }
+
 
 
 }
