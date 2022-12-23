@@ -8,9 +8,11 @@ int main(int argc, char * argv[])
     signal(SIGINT, clearResources);
     // TODO Initialization
     // 1. Read the input files.
-    // 2. Ask the user for the chosen scheduling algorithm and its parameters, if there are any.
-    // 3. Initiate and create the scheduler and clock processes.
-    // 4. Use this function after creating the clock process to initialize clock
+    // 2. Ask the user for the chosen scheduling algorithm and its parameters, if there are any. ===>done
+    // 3. Initiate and create the scheduler and clock processes.                                 ===>done
+    // 4. Use this function after creating the clock process to initialize clock                 ===>done
+    getUserAlgo();
+
 
     initMsgQueue();
     startScheduler();
@@ -25,9 +27,9 @@ int main(int argc, char * argv[])
     // 6. Send the information to the scheduler at the appropriate time.
     // 7. Clear clock resources
 
-    // while(true){
-    //     pause();
-    // }
+    while(true){
+        pause();
+    }
 
 
     destroyMsgQueue();
@@ -37,5 +39,7 @@ int main(int argc, char * argv[])
 
 void clearResources(int signum)
 {
+    destroyMsgQueue();
+    destroyClk(true);
     exit(0);
 }
