@@ -2,10 +2,12 @@
 #include "scheduler.h"
 
 
+
 int main(int argc, char * argv[])
 {
     
-    signal(SIGUSR1, handleUser1);
+    signal(SIGUSR1, handleProcessArrival);
+
 
 
     algo = atoi(argv[1]);

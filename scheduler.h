@@ -1,6 +1,5 @@
 #pragma once 
 #include "headers.h"
-#include "DataStructures/PCBQueue.h"
 
 AlgorithmType algo;
 int processesCount;
@@ -48,16 +47,16 @@ void recvProcess(){
         prc = (PCB*) malloc(sizeof(PCB));
 
         //extrating PCB obj parameters from the recieved object
-        prc->id = recPrc->id;
-        prc->arrivalTime =  recPrc.arrival_time;
+        prc->id = recPrc.process_id;
+        prc->arrival_time =  recPrc.arrival_time;
         prc->priority = recPrc.priority;
-        prc->executionTime = recvProcess.execution_time;
-        prc->remainingTime = recvProcess.execution_time;
-        prc->startTime = -1;
+        prc->execution_time = recPrc.execution_time;
+        prc->remaining_time = recPrc.execution_time;
+        prc->start_time = -1;
 
 
         //enqueue to the PCB queue
-        enqueue(prc);
+        //enqueue(prc);
 
     }
 }
@@ -91,7 +90,7 @@ void runAlgo(){
 }
 
 
-void handleUser1(int signum){
+void handleProcessArrival(int signum){
     recvProcess();
     runAlgo();
 }

@@ -47,10 +47,12 @@ typedef struct PCB{
     int id; // id from the file
     pid_t process_id;
     ProcessState process_state;
+    int arrival_time;
     int priority;
     int execution_time;
     int waiting_time;
     int remaining_time;
+    int start_time;
 }PCB;
 
 typedef struct Node

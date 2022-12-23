@@ -1,5 +1,6 @@
+#include "scheduler.h"
 #include "PCBQueue.h"
-#include "../scheduler.h"
+
 void enqueue(PCB* data)
 {
     if(algo == PHPF)
