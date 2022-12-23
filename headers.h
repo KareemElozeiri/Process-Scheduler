@@ -47,6 +47,7 @@ typedef struct PCB{
     int id; // id from the file
     pid_t process_id;
     ProcessState process_state;
+    int priority;
     int execution_time;
     int waiting_time;
     int remaining_time;

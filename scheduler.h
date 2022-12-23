@@ -16,11 +16,9 @@ void stopProcess();
 
 //communication with process_generator
 void recvProcess();
-void getAlgoType(); // gets algo type from process generator
 
 
 
-// TODO: How to communicate the process with its remaining time?
 
 //-------------- Scheduling Algorithms ------------//
 void runPHPF();
@@ -36,6 +34,29 @@ void clearResources(); // for clearing on exit
 
 //================ Functions Implementations ===============//
 
+
+
+void recvProcess(){
+    ProcessParameters recPrc;
+    PCB* prc;
+    
+    while(msgQueueRcvPrc(&recPrc) != -1){
+        //allocating memory for prc
+        prc = (PCB*) malloc(sizeof(PCB));
+
+        //extrating PCB obj parameters from the recieved object
+        prc->id = recPrc->id;
+        prc->arrivalTime =  recPrc.arrival_time;
+        prc->priority = recPrc.priority;
+        prc->executionTime = recvProcess.execution_time;
+        prc->remainingTime = recvProcess.execution_time;
+        prc->startTime = -1;
+
+
+        //enqueue to the PCB queue
+
+    }
+}
 
 void runPHPF(){
 
