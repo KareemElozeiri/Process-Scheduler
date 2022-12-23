@@ -1,5 +1,9 @@
 #include "headers.h"
 
+
+AlgorithmType algo = SJF;
+int processesCount = 0;
+
 //==================functions definations====================//
 void startClk();
 void startScheduler();
@@ -14,7 +18,8 @@ void startClk(){
         exit(FAILURE_CODE);
     }
     else if(pid==0){
-        execv("./clk.out",NULL);
+        char *const paramList[] = {"./clk.out", NULL};
+        execv("./clk.out", paramList);
         exit(FAILURE_CODE);
     }
 
@@ -28,7 +33,18 @@ void startScheduler(){
         exit(FAILURE_CODE);
     }
     else if(pid==0){
-        execv("./scheduler.out",NULL);
+
+        char stringAlgo[5];
+        char stringProcessesCount[10];
+
+        sprintf(stringAlgo, "%d", algo);
+        sprintf(stringProcessesCount, "%d", processesCount);
+        char *const paramList[] = {"./scheduler.out", stringAlgo, stringProcessesCount, NULL};
+
+
+        execv("./scheduler.out", paramList);
+        
+
         exit(FAILURE_CODE);
     }
 

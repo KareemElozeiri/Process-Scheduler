@@ -12,10 +12,10 @@ int main(int argc, char * argv[])
     // 3. Initiate and create the scheduler and clock processes.
     // 4. Use this function after creating the clock process to initialize clock
 
-    startClk();
-    startScheduler();
-
     initMsgQueue();
+    startScheduler();
+    startClk();
+
     initClk();
     // To get time use this
     int x = getClk();
@@ -24,8 +24,14 @@ int main(int argc, char * argv[])
     // 5. Create a data structure for processes and provide it with its parameters.
     // 6. Send the information to the scheduler at the appropriate time.
     // 7. Clear clock resources
-    destroyClk(true);
+
+    // while(true){
+    //     pause();
+    // }
+
+
     destroyMsgQueue();
+    destroyClk(true);
 
 }
 

@@ -1,10 +1,9 @@
+#pragma once 
 #include "headers.h"
 
-//============== Data structures ==========//
-
-// TODO implement queue for PCBs
 
 AlgorithmType algo;
+int processesCount;
 
 
 //============ Functions  Definations    =====================//
@@ -29,11 +28,39 @@ void runSRTN();
 void runSJF();
 //------------------------------------------------//
 
-void runAlgo(AlgorithmType algo); // runs choosen algo by the user in process generator
+void runAlgo(); // runs choosen algo by the user in process generator
 
 void clearResources(); // for clearing on exit
 
 
 
 //================ Functions Implementations ===============//
+
+
+void runPHPF(){
+
+}
+
+
+void runSRTN(){
+
+}
+
+void runSJF(){
+    
+}
+
+void runAlgo(){
+    switch(algo){
+        case PHPF:
+            runPHPF();
+            break;
+        case SRTN:
+            runSRTN();
+            break;
+        case SJF:
+            runSJF();
+            break;
+    }
+}
 
