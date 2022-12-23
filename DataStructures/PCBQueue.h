@@ -67,7 +67,24 @@ void enqueue(Node *data)
         }
     }
     else if (algo == PHPF)
-    {
+    {//Preemptive Highest Priority First
+        Node *temp = prQueue;
+        int newPri = new->priority;
+
+        if(prQueue->priority < newPri)
+        {
+            new->next = prQueue;
+            prQueue = new;
+        }
+        else
+        {
+            while ((temp->next != NULL) && (temp->next->data->remaining_time > newPri))
+            {
+                temp = temp->next;
+            }
+            new->next = temp->next;
+            temp->next = new;
+        }
     }
 }
 
