@@ -24,9 +24,9 @@ int main(int argc, char * argv[])
     initClk();
     // To get time use this
     int current_time = getClk();
-    // TODO Generation Main Loop
-    // 5. Create a data structure for processes and provide it with its parameters.
-    // 6. Send the information to the scheduler at the appropriate time.
+    // TODO Generation Main Loop ===>done
+    // 5. Create a data structure for processes and provide it with its parameters. ===>done
+    // 6. Send the information to the scheduler at the appropriate time.===>done
     // 7. Clear clock resources
     while(processesCount) {
         current_time = getClk();
