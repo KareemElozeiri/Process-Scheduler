@@ -1,3 +1,4 @@
+#pragma once 
 #include <stdio.h>      //if you don't use scanf/printf change this include
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -14,8 +15,11 @@
 typedef short bool;
 #define true 1
 #define false 0
-
 #define SHKEY 300
+#define FAILURE_CODE -1
+#define MSG_QUEUE_KEY 2001
+int msgQueueId;
+
 
 
 typedef enum AlgorithmType{
@@ -35,7 +39,9 @@ typedef struct ProcessParameters{
     int arrival_time;
     int execution_time;
     int priority;
+
 }ProcessParameters;
+
 
 typedef struct PCB{
     int id; // id from the file
@@ -51,7 +57,6 @@ typedef struct Node
     PCB *data;
     struct Node *next;
 }Node;
-
 
 ///==============================
 //don't mess with this variable//
@@ -100,3 +105,42 @@ void destroyClk(bool terminateAll)
         killpg(getpgrp(), SIGINT);
     }
 }
+
+
+//function initiating the message queue between the process generator
+void initMsgQueue(){
+    msgQueueId = msgget(MSG_QUEUE_KEY, IPC_CREAT|0644);
+
+    if(msgQueueId==-1){
+        perror("Error in creating the message queue");
+        exit(FAILURE_CODE);
+    }
+}
+
+//function destry the message queue between the process generator
+void destroyMsgQueue(){
+    int destroy_result = msgctl(msgQueueId, IPC_RMID, (void *)0);
+
+    if(destroy_result==-1){
+        perror("Error while destroying the Message Queue");
+        exit(FAILURE_CODE);
+    }
+
+}
+
+//message queue operations (send, recieve) process data
+
+void msgQueueSendPrc(ProcessParameters* prc){
+    int send_value = msgsnd(msgQueueId, prc, sizeof(ProcessParameters), !IPC_NOWAIT);
+
+    if(send_value==-1){
+        perror("Error sending process to scheduler");
+        exit(FAILURE_CODE);
+    }
+    
+}
+
+ssize_t msgQueueRcvPrc(ProcessParameters* prc){
+    return msgrcv(msgQueueId, prc, sizeof(ProcessParameters), 0, IPC_NOWAIT);
+}
+

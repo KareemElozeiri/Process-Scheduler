@@ -15,6 +15,7 @@ int main(int argc, char * argv[])
     startClk();
     startScheduler();
 
+    initMsgQueue();
     initClk();
     // To get time use this
     int x = getClk();
@@ -24,9 +25,11 @@ int main(int argc, char * argv[])
     // 6. Send the information to the scheduler at the appropriate time.
     // 7. Clear clock resources
     destroyClk(true);
+    destroyMsgQueue();
+
 }
 
 void clearResources(int signum)
 {
-    //TODO Clears all resources in case of interruption
+    exit(0);
 }

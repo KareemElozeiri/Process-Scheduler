@@ -1,6 +1,4 @@
-// ADD functions and data structures to be used in the process_generator
-
-
+#include "headers.h"
 
 //==================functions definations====================//
 void startClk();
@@ -13,11 +11,11 @@ void startClk(){
 
     if(pid==-1){
         perror("Error while forking to start the clk");
-        exit(-1);
+        exit(FAILURE_CODE);
     }
     else if(pid==0){
         execv("./clk.out",NULL);
-        exit(-1);
+        exit(FAILURE_CODE);
     }
 
 }
@@ -27,10 +25,11 @@ void startScheduler(){
 
     if(pid==-1){
         perror("Error while forking to start the scheduler");
-        exit(-1);
+        exit(FAILURE_CODE);
     }
     else if(pid==0){
         execv("./scheduler.out",NULL);
+        exit(FAILURE_CODE);
     }
 
 }
