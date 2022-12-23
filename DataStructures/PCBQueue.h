@@ -1,7 +1,7 @@
 #include "../headers.h"
 
 
-
+algo = 2; //for testing
 Node* newNode(PCB* d, int p)
 {
     Node* temp = (Node*)malloc(sizeof(Node));
@@ -62,29 +62,28 @@ void enqueue(Node *data)
     }
 }
 
-Node *dequeue()
-{
-    if (algo == PHPF)
-    {
-    }
+// Node *dequeue()
+// {
+//     if (algo == PHPF)
+//     {
+//     }
 
-    if (qSize == 0)
-        return NULL;
-    PCB *prcs = prQueue[1];
-    prQueue[1] = prQueue[qSize--];
+//     if (qSize == 0)
+//         return NULL;
+//     prQueue[1] = prQueue[qSize--];
 
-    if (qSize > 1)
-    {
-        if (algo == SRTN)
-        {
-            _heapifySRTN(1);
-        }
-        else if (algo == SJF)
-        {
-        }
-    }
-    return prcs;
-}
+//     if (qSize > 1)
+//     {
+//         if (algo == SRTN)
+//         {
+//             _heapifySRTN(1);
+//         }
+//         else if (algo == SJF)
+//         {
+//         }
+//     }
+//     return prcs;
+// }
 
 Node *peak()
 {
