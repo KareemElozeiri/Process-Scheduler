@@ -4,14 +4,15 @@
 AlgorithmType algo;
 int processesCount;
 PCB* runningProcess = NULL;
-int test = 0;
 
 // Logging File
 FILE* logging_file;
+FILE* perf_calculations_file;
 
 // ================== Logger ================== //
 
-void InitiateLogger() {
+void InitiateLogger()
+{
     logging_file = fopen("Scheduler.log", "w");
     if (logging_file == NULL)
     {
@@ -41,6 +42,7 @@ void LogUpdate(PCB* p, LoggerState logger_state)
     fclose(logging_file);
     logging_file = fopen("Scheduler.log", "a");
 }
+
 
 // ================== Finished Processes Queue ================== //
 typedef struct FinishedProcessNode
@@ -356,7 +358,6 @@ void runSJF(){
         runningProcess->process_id = forkNewProcess(runningProcess->remaining_time);
         runningProcess->start_time = getClk();
         LogUpdate(runningProcess, STARTING_PROCESS);
-        test = 1;
     }
     
 }
@@ -408,3 +409,54 @@ void handleProcessFinished(int signum){
 
 
 
+// ================ Perf Calculations ================= //
+
+void CalculatePerf(PerfCalculation* perf) {
+    float total_execution_time = 0;
+    float total_WTA = 0;
+    float total_waiting_time = 0;
+
+    PCB** finished_processes = calloc(processesCount, sizeof(PCB*));
+    int counter = 0;
+
+    while (finished_process_front)
+    {
+        PCB* finished_process = finished_process_front->data;
+        total_execution_time += finished_process->execution_time;
+        total_WTA += finished_process->weighted_turnaround_time;
+        total_waiting_time += finished_process->waiting_time;
+        finished_processes[counter] = finished_process;
+        finished_process_pop();
+        counter++;
+    }
+
+    float cpu_util = (1.0 * total_execution_time / (getClk() - 1)) * 100;
+    float avg_WTA = total_WTA / processesCount;    
+    float avg_waiting_time = total_waiting_time / processesCount;
+
+    perf->cpu_util = cpu_util;
+    perf->avg_WTA = avg_WTA;
+    perf->avg_waiting_time = avg_waiting_time;
+    perf->WTA_std = 0;
+
+    // Calculate STD
+    for (int i = 1; i < processesCount; i++) {
+        perf->WTA_std += (finished_processes[i]->weighted_turnaround_time - avg_WTA) * (finished_processes[i]->weighted_turnaround_time - avg_WTA);
+    }
+    perf->WTA_std = perf->WTA_std / processesCount;
+    
+    free(finished_processes);
+}
+
+void LogPerfCalculations()
+{
+    // Open in append mode
+    perf_calculations_file = fopen("Scheduler.perf", "w");
+    PerfCalculation* perf_calculations;
+    CalculatePerf(perf_calculations);
+    fprintf(perf_calculations_file, "CPU utilization =  %.6f\%\n", perf_calculations->cpu_util);
+    fprintf(perf_calculations_file, "Avg WTA =  %.6f\n", perf_calculations->avg_WTA);
+    fprintf(perf_calculations_file, "Avg Waiting =  %.6f\n", perf_calculations->avg_waiting_time);
+    fprintf(perf_calculations_file, "Std WTA =  %.6f\n", perf_calculations->WTA_std);
+    fclose(perf_calculations_file);
+}
