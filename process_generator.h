@@ -5,13 +5,16 @@
 AlgorithmType algo = SJF;
 int processesCount = 0;
 
-// ================== Processes Queue ======================= //
+// ================== Forks PIDs ================== //
+pid_t scheduler_pid, clock_pid;
+
+// ================== Processes Queue ================== //
 typedef struct ProcessNode
 {
     ProcessParameters *data;
     struct ProcessNode *next;
 } ProcessNode;
-ProcessNode *front = NULL, *rear = NULL;
+ProcessNode *process_front = NULL, *rear = NULL;
 int qSize = 0;  //would equal total number of processes when the program exits
 void pop();     //throws front and frees memory
 void enqueue(ProcessParameters *val);
@@ -24,10 +27,10 @@ void process_enqueue(ProcessParameters *val)
     newNode->data = val;
     
     //First node to be added
-    if(front == NULL && rear == NULL)
+    if(process_front == NULL && rear == NULL)
     {
         //make both front and rear points to newNode
-        front = newNode;
+        process_front = newNode;
         rear = newNode;
     }
     else //not the first
@@ -42,12 +45,12 @@ void process_enqueue(ProcessParameters *val)
 
 void process_pop()
 {
-    if(front == NULL)
+    if(process_front == NULL)
         return;
-    if(front == rear)
+    if(process_front == rear)
         rear = NULL;
-    ProcessNode* temp = front;
-    front = front->next;
+    ProcessNode* temp = process_front;
+    process_front = process_front->next;
     free(temp->data);   //First free data
     free(temp);
 }
@@ -106,28 +109,27 @@ void getUserAlgo(){
 
 
 void startClk(){
-    pid_t pid = fork();
+    clock_pid = fork();
 
-    if(pid==-1){
+    if (clock_pid == -1) {
         perror("Error while forking to start the clk");
         exit(FAILURE_CODE);
     }
-    else if(pid==0){
+    else if (clock_pid == 0) {
         char *const paramList[] = {"./clk.out", NULL};
         execv("./clk.out", paramList);
         exit(FAILURE_CODE);
     }
-
 }
 
 void startScheduler(){
-    pid_t pid = fork();
+    scheduler_pid = fork();
 
-    if(pid==-1){
+    if (scheduler_pid == -1) {
         perror("Error while forking to start the scheduler");
         exit(FAILURE_CODE);
     }
-    else if(pid==0){
+    else if (scheduler_pid == 0) {
 
         char stringAlgo[5];
         char stringProcessesCount[10];
