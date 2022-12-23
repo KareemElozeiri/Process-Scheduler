@@ -5,7 +5,7 @@
 AlgorithmType algo;
 int processesCount;
 PCB* runningProcess = NULL;
-
+int test = 0;
 
 // ================== PCB Queue ================== //
 typedef struct PCBNode
@@ -78,8 +78,9 @@ void runAlgo(); // runs choosen algo by the user in process generator
 
 
 
-//hanlder for user defined signal
-void handleUser1(int signum);
+//hanlder for handling processes arrival and finish
+void handleProcessArrival(int signum);
+void handleProcessFinish(int signum);
 
 // for clearing on exit
 void clearResources(); 
@@ -135,7 +136,7 @@ void recvProcess(){
 
 
         //enqueue to the PCB queue
-        //enqueue(prc);
+        pcb_enqueue(prc);
 
     }
 }
@@ -151,14 +152,19 @@ void runSRTN(){
 }
 
 void runSJF(){
-    // if(!(runningProcess) && PCBQueue.front){
-
-    // }
+    if(runningProcess==NULL && pcb_front!=NULL){
+        runningProcess = pcb_front->data;
+        pcb_pop();
+        forkNewProcess(runningProcess->remaining_time);
+        test = 1;
+    }
     
 }
 
 
 void runAlgo(){
+
+    printf("Running RunAlgo\n");
     switch(algo){
         case PHPF:
             runPHPF();
@@ -180,6 +186,7 @@ void handleProcessArrival(int signum){
 
 
 void handleProcessFinished(int signum){
+    
     runningProcess = NULL;
     runAlgo();
 }

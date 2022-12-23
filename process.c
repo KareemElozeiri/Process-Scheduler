@@ -11,14 +11,18 @@ int main(int agrc, char * argv[])
     remainingtime = atoi(argv[1]);
     int schedulerPid = atoi(argv[2]);
     int schedulerClk = atoi(argv[3]);
+    printf("Process Started with remining time %d\n || Process PID: %d\n", remainingtime, getpid());
 
     if(remainingtime>0 && getClk()!=schedulerClk){
         remainingtime--;
     }
 
-    while (remainingtime > 0)
+    int startTime = getClk();
+    int finishTime = getClk()+remainingtime;
+
+    while (getClk()!=finishTime)
     {
-        remainingtime--;
+        
     }
     
 
