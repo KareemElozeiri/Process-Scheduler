@@ -2,8 +2,8 @@
 
 
 Node *front = NULL, *rear = NULL;
-PCB** prQueue; //shares same functions with Queue
-int qSize = 0;  //current number of elements in queue
+PCB** prQueue; 
+int qSize = 0;
 void enqueue(PCB* data);
 PCB* dequeue();
 PCB* peak();

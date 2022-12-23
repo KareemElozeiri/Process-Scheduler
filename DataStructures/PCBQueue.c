@@ -7,13 +7,13 @@ void enqueue(PCB* data)
         
     }
 
-    prQueue[++qSize] = data; //ignoring 0 index by post-increment
+    prQueue[++qSize] = data; 
     if(qSize == 1)
         return;
     if(algo == SRTN)
     {
         for(int i = qSize/2; i > 0; i--)
-            _heapifySRTN(i); //heapify from parent
+            _heapifySRTN(i); 
     }
     else if(algo == SJF)
     {
