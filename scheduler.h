@@ -36,6 +36,12 @@ void LogUpdate(PCB* p, LoggerState logger_state)
     case FINISHING_PROCESS:
         fprintf(logging_file, "At time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %d\n", p->finish_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
         break;
+    case STOPPING_PROCESS:
+        fprintf(logging_file, "At time %d process %d stopped arr %d total %d remain %d wait %d TA %d WTA %d\n", p->finish_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
+        break;
+    case RESUMING_PROCESS:
+        fprintf(logging_file, "At time %d process %d resumed arr %d total %d remain %d wait %d TA %d WTA %d\n", p->finish_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
+        break;
     default:
         break;
     }
@@ -299,9 +305,12 @@ void stopProcess(){
     }
     printf("Stopped Process %d\n", runningProcess->id);
     runningProcess->remaining_time = getClk()-runningProcess->start_time;
-
+    runningProcess->process_state = STOPPED;
+    LogUpdate(runningProcess, STOPPING_PROCESS);
     pcb_enqueue(runningProcess);
+
     runningProcess = NULL;
+
 }
 
 void recvProcess(){
@@ -320,6 +329,7 @@ void recvProcess(){
         prc->remaining_time = recPrc.execution_time;
         prc->start_time = -1;
         prc->waiting_time = 0;
+        prc->process_state = READY;
         printf("Rec Prc ID: %d, arr: %d\n", prc->id, prc->arrival_time);
 
 
@@ -336,7 +346,12 @@ void runPHPF(){
         printf("RUNNING PROCESS: id: %d, arr: %d\n", runningProcess->id, runningProcess->arrival_time);
         runningProcess->process_id = forkNewProcess(runningProcess->remaining_time);
         runningProcess->start_time = getClk();
-        LogUpdate(runningProcess, STARTING_PROCESS);
+        if(runningProcess->process_state!=STOPPED){
+            LogUpdate(runningProcess, STARTING_PROCESS);
+        }
+        else{
+            LogUpdate(runningProcess, RESUMING_PROCESS);
+        }
     }
     else if(runningProcess != NULL && pcb_front!=NULL){
         if(runningProcess->priority<pcb_front->data->priority){
@@ -376,6 +391,7 @@ void runSJF(){
         printf("RUNNING PROCESS: id: %d, arr: %d\n", runningProcess->id, runningProcess->arrival_time);
         runningProcess->process_id = forkNewProcess(runningProcess->remaining_time);
         runningProcess->start_time = getClk();
+        
         LogUpdate(runningProcess, STARTING_PROCESS);
     }
     
@@ -384,7 +400,6 @@ void runSJF(){
 
 void runAlgo(){
 
-    printf("Running RunAlgo\n");
     switch(algo){
         case PHPF:
             runPHPF();
