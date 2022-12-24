@@ -294,6 +294,7 @@ void recvProcess(){
         prc->execution_time = recPrc.execution_time;
         prc->remaining_time = recPrc.execution_time;
         prc->start_time = -1;
+        prc->stop_time = -1;
         prc->waiting_time = 0;
         prc->process_state = READY;
         prc->turnaround_time = 0;
@@ -310,6 +311,8 @@ void recvProcess(){
 void runPHPF(){
     if(runningProcess == NULL && pcb_front != NULL) {
         runningProcess = pcb_front->data;
+        if (runningProcess->stop_time)
+            runningProcess->waiting_time = (getClk() - runningProcess->arrival_time) - (runningProcess->stop_time - runningProcess->start_time);
         pcb_pop();
         printf("RUNNING PROCESS: id: %d, arr: %d\n", runningProcess->id, runningProcess->arrival_time);
         runningProcess->process_id = forkNewProcess(runningProcess->remaining_time);
@@ -399,7 +402,7 @@ void FinalizeProcessParameters(PCB* p) {
     p->waiting_time = p->finish_time - p->arrival_time - p->execution_time;
     p->turnaround_time = p->finish_time - p->arrival_time;
     p->weighted_turnaround_time = p->turnaround_time / (float) p->execution_time;
-//    p->weighted_turnaround_time = round (p->weighted_turnaround_time * 100) / 100;
+    p->remaining_time = 0;
     LogUpdate(p, FINISHING_PROCESS);
 }
 
