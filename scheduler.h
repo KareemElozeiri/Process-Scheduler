@@ -128,13 +128,13 @@ void LogUpdate(PCB* p, LoggerState logger_state)
         fprintf(logging_file, "At time %d process %d started arr %d total %d remain %d wait %d\n", p->start_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time); 
         break;
     case FINISHING_PROCESS:
-        fprintf(logging_file, "At time %d process %d finished arr %d total %d remain %d wait %d TA %f WTA %f\n", p->finish_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
+        fprintf(logging_file, "At time %d process %d finished arr %d total %d remain %d wait %d TA %.2f WTA %.2f\n", p->finish_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
         break;
     case STOPPING_PROCESS:
-        fprintf(logging_file, "At time %d process %d stopped arr %d total %d remain %d wait %d TA %f WTA %f\n", p->stop_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
+        fprintf(logging_file, "At time %d process %d stopped arr %d total %d remain %d wait %d TA %.2f WTA %.2f\n", p->stop_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
         break;
     case RESUMING_PROCESS:
-        fprintf(logging_file, "At time %d process %d resumed arr %d total %d remain %d wait %d TA %f WTA %f\n", p->start_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
+        fprintf(logging_file, "At time %d process %d resumed arr %d total %d remain %d wait %d TA %.2f WTA %.2f\n", p->start_time, p->id, p->arrival_time, p->execution_time, p->remaining_time, p->waiting_time, p->turnaround_time, p->weighted_turnaround_time); 
         break;
     default:
         break;
@@ -467,9 +467,9 @@ void LogPerfCalculations()
     perf_calculations_file = fopen("Scheduler.perf", "w");
     PerfCalculation* perf_calculations;
     CalculatePerf(perf_calculations);
-    fprintf(perf_calculations_file, "CPU utilization =  %.6f%%\n", perf_calculations->cpu_util);
-    fprintf(perf_calculations_file, "Avg WTA =  %.6f\n", perf_calculations->avg_WTA);
-    fprintf(perf_calculations_file, "Avg Waiting =  %.6f\n", perf_calculations->avg_waiting_time);
-    fprintf(perf_calculations_file, "Std WTA =  %.6f\n", perf_calculations->WTA_std);
+    fprintf(perf_calculations_file, "CPU utilization =  %.2f%%\n", perf_calculations->cpu_util);
+    fprintf(perf_calculations_file, "Avg WTA =  %.2f\n", perf_calculations->avg_WTA);
+    fprintf(perf_calculations_file, "Avg Waiting =  %.2f\n", perf_calculations->avg_waiting_time);
+    fprintf(perf_calculations_file, "Std WTA =  %.2f\n", perf_calculations->WTA_std);
     fclose(perf_calculations_file);
 }
