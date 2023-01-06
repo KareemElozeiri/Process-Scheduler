@@ -318,6 +318,7 @@ void runPHPF(){
         runningProcess->process_id = forkNewProcess(runningProcess->remaining_time);
         runningProcess->start_time = getClk();
         if(runningProcess->process_state!=STOPPED){
+            // *** Allocation *** -> Allocation Logger
             LogUpdate(runningProcess, STARTING_PROCESS);
         }
         else{
@@ -411,6 +412,7 @@ void RegisterFinishedProcess(PCB* p) {
 }
 
 void handleProcessFinished(int signum){
+    // *** if PHPF -> De-allocate -> De-allocation logger ***
     printf("Process with PID:%d finished!\n", runningProcess->process_id);
     FinalizeProcessParameters(runningProcess);
     RegisterFinishedProcess(runningProcess);   
