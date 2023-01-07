@@ -87,6 +87,8 @@ typedef struct Node
 typedef struct TreeNodeData
 {
     int memsize;
+    int start_mem;
+    int end_mem;
     bool isalloc;
     PCB* process;
 }TreeNodeData;
