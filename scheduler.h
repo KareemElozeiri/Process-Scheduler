@@ -174,7 +174,7 @@ void LogMemory(PCB* p, LoggerState logger_state){
             fprintf(memory_logging_file, "At time %d allocated %d bytes for process %d from %d to %d\n", p->start_time, p->memsize, p->id, total_allocated_memory, total_allocated_memory+runningProcess_allocated_memory);
             break;
         case FINISHING_PROCESS:
-            fprintf(memory_logging_file, "At time %d freed %d bytes for process %d from %d to %d\n", p->finish_time, p->memsize, p->id, total_allocated_memory, total_allocated_memory+runningProcess_allocated_memory); 
+            fprintf(memory_logging_file, "At time %d freed %d bytes for process %d from %d to %d\n", p->finish_time, p->memsize, p->id, total_allocated_memory-runningProcess_allocated_memory, total_allocated_memory); 
             break;
         case OVERFLOW_PROCESS:
             fprintf(memory_logging_file, "At time: %d, could not find location in memory to put procces id: %d, total memory allocated: %d\n", p->start_time, p->id, total_allocated_memory);
@@ -274,7 +274,7 @@ void LogPerfCalculations();
 //-------------- Memory Handling Functions ------------//
 void FindNextTreeNode(struct TreeNode* node, int process_memsize, struct TreeNode** found);
 void FindProcessTreeNode(struct TreeNode* node, int process_id, struct TreeNode** found);
-void CalculateTotalMemory(struct TreeNode* node, int total_memory);
+void CalculateTotalMemory(struct TreeNode* node);
 void AllocateMemory(PCB* process);
 void DeAllocateMemory(PCB* process);
 //------------------------------------------------//
@@ -614,15 +614,17 @@ void FindProcessTreeNode(struct TreeNode* node, int process_id, struct TreeNode*
     return;
 }
 
-void CalculateTotalMemory(struct TreeNode* node, int total_memory){
+void CalculateTotalMemory(struct TreeNode* node){
     if (node == NULL){
         return;
     }
+    
+    if(node->data->isalloc){
+        total_allocated_memory += node->data->memsize;
+    }
 
-    total_memory += node->data->memsize;
-
-    CalculateTotalMemory(node->left, total_memory);
-    CalculateTotalMemory(node->right, total_memory);
+    CalculateTotalMemory(node->left);
+    CalculateTotalMemory(node->right);
 
     return;
 }
@@ -638,13 +640,14 @@ void AllocateMemory(PCB* process){
     FindNextTreeNode(root_memory_node, process->memsize, &found);
 
     if(found == NULL){
-        CalculateTotalMemory(root_memory_node, total_allocated_memory);
+        total_allocated_memory = 0;
+        CalculateTotalMemory(root_memory_node);
         LogMemory(runningProcess, OVERFLOW_PROCESS);
         return;
     }
 
     total_allocated_memory = 0;
-    CalculateTotalMemory(root_memory_node, total_allocated_memory);
+    CalculateTotalMemory(root_memory_node);
 
     found->data->isalloc = true;
     found->data->process = process;
@@ -660,7 +663,7 @@ void DeAllocateMemory(PCB* process){
         exit(EXIT_FAILURE);
     }
     total_allocated_memory = 0;
-    CalculateTotalMemory(root_memory_node, total_allocated_memory);
+    CalculateTotalMemory(root_memory_node);
     runningProcess_allocated_memory = found->data->memsize;
     found->data->isalloc = false;
     found->data->process = NULL;
