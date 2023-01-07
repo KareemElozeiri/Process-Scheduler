@@ -1,9 +1,9 @@
 build:
-	gcc process_generator.c -o process_generator.out
-	gcc clk.c -o clk.out
-	gcc scheduler.c -o scheduler.out
-	gcc process.c -o process.out
-	gcc test_generator.c -o test_generator.out
+	gcc process_generator.c -o process_generator.out -fno-stack-protector
+	gcc clk.c -o clk.out -fno-stack-protector
+	gcc scheduler.c -o scheduler.out -fno-stack-protector
+	gcc process.c -o process.out -fno-stack-protector
+	gcc test_generator.c -o test_generator.out -fno-stack-protector
 
 clean:
 	rm -f *.out  processes.txt
