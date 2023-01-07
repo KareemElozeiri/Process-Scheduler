@@ -171,10 +171,10 @@ void LogMemory(PCB* p, LoggerState logger_state){
     switch (logger_state)
     {
         case STARTING_PROCESS:
-            fprintf(memory_logging_file, "At time %d allocated %d bytes for process %d from %d to %d\n", p->start_time, p->memsize, p->id, total_allocated_memory, total_allocated_memory+runningProcess_allocated_memory);
+            fprintf(memory_logging_file, "At time %d allocated %d bytes for process %d from %d to %d\n", p->start_time, p->memsize, p->id, total_allocated_memory, total_allocated_memory+runningProcess_allocated_memory-1);
             break;
         case FINISHING_PROCESS:
-            fprintf(memory_logging_file, "At time %d freed %d bytes for process %d from %d to %d\n", p->finish_time, p->memsize, p->id, total_allocated_memory-runningProcess_allocated_memory, total_allocated_memory); 
+            fprintf(memory_logging_file, "At time %d freed %d bytes for process %d from %d to %d\n", p->finish_time, p->memsize, p->id, total_allocated_memory-runningProcess_allocated_memory, total_allocated_memory-1); 
             break;
         case OVERFLOW_PROCESS:
             fprintf(memory_logging_file, "At time: %d, could not find location in memory to put procces id: %d, total memory allocated: %d\n", p->start_time, p->id, total_allocated_memory);
