@@ -4,12 +4,20 @@
 AlgorithmType algo;
 int processesCount;
 PCB* runningProcess = NULL;
+int runningProcess_allocated_memory;
+int total_allocated_memory;
 
 // Logging File
 FILE* logging_file;
+
+// Memory Logging File
+FILE* memory_logging_file;
+
 // Statistics File
 FILE* perf_calculations_file;
 
+// Root Node of Memory Tree
+TreeNode* root_memory_node;
 
 // ================== PCB Queue ================== //
 typedef struct PCBNode
@@ -108,16 +116,29 @@ void pcb_pop()
 void InitiateLogger()
 {
     logging_file = fopen("Scheduler.log", "w");
+    memory_logging_file = fopen("Memory.log", "w");
+
     if (logging_file == NULL)
     {
         perror("Error in Scheduler.log Creation/Opening!");
         exit(EXIT_FAILURE);
     }
+
+    if (memory_logging_file == NULL)
+    {
+        perror("Error in Memory.log Creation/Opening!");
+        exit(EXIT_FAILURE);
+    }
+
     // Log the heading
     fprintf(logging_file, "#At time x process y state arr w total z remain y wait k\n"); 
+    fprintf(memory_logging_file, "#At time x allocated y bytes for process z from i to j\n");
     fclose(logging_file);
+    fclose(memory_logging_file);
+
     // Open in append mode
     logging_file = fopen("Scheduler.log", "a");
+    memory_logging_file = fopen("Memory.log", "a");
 }
 
 void LogUpdate(PCB* p, LoggerState logger_state)
@@ -142,6 +163,29 @@ void LogUpdate(PCB* p, LoggerState logger_state)
     fclose(logging_file);
     logging_file = fopen("Scheduler.log", "a");
 }
+
+
+
+// ================== Memory Log ================== //
+void LogMemory(PCB* p, LoggerState logger_state){
+    switch (logger_state)
+    {
+        case STARTING_PROCESS:
+            fprintf(memory_logging_file, "At time %d allocated %d bytes for process %d from %d to %d\n", p->start_time, p->memsize, p->id, total_allocated_memory, total_allocated_memory+runningProcess_allocated_memory);
+            break;
+        case FINISHING_PROCESS:
+            fprintf(memory_logging_file, "At time %d freed %d bytes for process %d from %d to %d\n", p->finish_time, p->memsize, p->id, total_allocated_memory, total_allocated_memory+runningProcess_allocated_memory); 
+            break;
+        case OVERFLOW_PROCESS:
+            fprintf(memory_logging_file, "At time: %d, could not find location in memory to put procces id: %d, total memory allocated: %d\n", p->start_time, p->id, total_allocated_memory);
+        default:
+            break;
+    }
+    fclose(memory_logging_file);
+    memory_logging_file = fopen("Memory.log", "a");
+}
+
+
 
 // ================== Finished Processes Queue ================== //
 typedef struct FinishedProcessNode
@@ -227,6 +271,14 @@ void handleProcessFinished(int signum);
 void CalculatePerf(PerfCalculation* perf);
 void LogPerfCalculations();
 
+//-------------- Memory Handling Functions ------------//
+void FindNextTreeNode(struct TreeNode* node, int process_memsize, struct TreeNode** found);
+void FindProcessTreeNode(struct TreeNode* node, int process_id, struct TreeNode** found);
+void CalculateTotalMemory(struct TreeNode* node, int total_memory);
+void AllocateMemory(PCB* process);
+void DeAllocateMemory(PCB* process);
+//------------------------------------------------//
+
 // for clearing on exit
 void clearResources(); 
 
@@ -261,7 +313,6 @@ int forkNewProcess(int execution_time){
     return processPid;
 }
 
-
 void stopProcess(){
     if(kill(runningProcess->process_id, SIGSTOP) == -1)
     {
@@ -293,6 +344,7 @@ void recvProcess(){
         prc->priority = recPrc.priority;
         prc->execution_time = recPrc.execution_time;
         prc->remaining_time = recPrc.execution_time;
+        prc->memsize = recPrc.memsize;
         prc->start_time = -1;
         prc->stop_time = -1;
         prc->waiting_time = 0;
@@ -318,7 +370,14 @@ void runPHPF(){
         runningProcess->process_id = forkNewProcess(runningProcess->remaining_time);
         runningProcess->start_time = getClk();
         if(runningProcess->process_state!=STOPPED){
-            // *** Allocation *** -> Allocation Logger
+            
+            // check if algorithm is PHPF to send to memory
+            if(algo == PHPF){
+                AllocateMemory(runningProcess);
+
+                LogMemory(runningProcess, STARTING_PROCESS);
+            }
+
             LogUpdate(runningProcess, STARTING_PROCESS);
         }
         else{
@@ -405,6 +464,13 @@ void FinalizeProcessParameters(PCB* p) {
     p->weighted_turnaround_time = p->turnaround_time / (float) p->execution_time;
     p->remaining_time = 0;
     LogUpdate(p, FINISHING_PROCESS);
+    if(algo == PHPF){
+        // de-allocate process from the memory
+        DeAllocateMemory(runningProcess);
+        // send the de-allocation to the memory logger
+        LogMemory(runningProcess, FINISHING_PROCESS);
+    }
+
 }
 
 void RegisterFinishedProcess(PCB* p) {
@@ -412,7 +478,6 @@ void RegisterFinishedProcess(PCB* p) {
 }
 
 void handleProcessFinished(int signum){
-    // *** if PHPF -> De-allocate -> De-allocation logger ***
     printf("Process with PID:%d finished!\n", runningProcess->process_id);
     FinalizeProcessParameters(runningProcess);
     RegisterFinishedProcess(runningProcess);   
@@ -474,4 +539,130 @@ void LogPerfCalculations()
     fprintf(perf_calculations_file, "Avg Waiting =  %.2f\n", perf_calculations->avg_waiting_time);
     fprintf(perf_calculations_file, "Std WTA =  %.2f\n", perf_calculations->WTA_std);
     fclose(perf_calculations_file);
+}
+
+struct TreeNode* NewTreeNode(int parent_memsize, bool is_root){
+    struct TreeNode* node = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    struct TreeNodeData* nodeData = (struct TreeNodeData*)malloc(sizeof(struct TreeNodeData));
+    node->data = nodeData;
+
+    node->left = NULL;
+    node->right = NULL;
+    if(is_root){
+        node->data->memsize = parent_memsize;
+    }else{
+        node->data->memsize = parent_memsize/2;
+    }
+    node->data->isalloc = false;
+    return (node);
+}
+
+void FindNextTreeNode(struct TreeNode* node, int process_memsize, struct TreeNode** found){
+    if (node == NULL || *found != NULL){
+        return;
+    }
+    
+    // return if the node is allocated
+    if(node->data->isalloc == true) return;
+    if(node->data->memsize >= process_memsize && node->data->memsize / 2 < process_memsize && node->left == NULL && node->right == NULL){
+        *found = node;
+    }else if (node->data->memsize / 2 >= process_memsize)
+    {
+        if(node->left == NULL){
+            node->left = NewTreeNode(node->data->memsize, false);
+        }
+
+        FindNextTreeNode(node->left, process_memsize, found);
+        
+        if(*found != NULL){
+            return;
+        }
+
+        if(node->right == NULL){
+            node->right = NewTreeNode(node->data->memsize, false);
+        }
+
+        FindNextTreeNode(node->right, process_memsize, found);
+
+        if(*found != NULL){
+            return;
+        }
+        
+    }
+
+    return;
+}
+
+void FindProcessTreeNode(struct TreeNode* node, int process_id, struct TreeNode** found){
+    
+    if (node == NULL || *found != NULL){
+        return;
+    }
+        
+    if(node->left == NULL && node->right == NULL && node->data->process != NULL){
+        if(node->data->process->id == process_id){
+            *found = node;
+            return;
+        }
+    }
+
+    FindProcessTreeNode(node->left, process_id, found);
+    if (*found != NULL){
+        return;
+    }
+    FindProcessTreeNode(node->right, process_id, found);
+    return;
+}
+
+void CalculateTotalMemory(struct TreeNode* node, int total_memory){
+    if (node == NULL){
+        return;
+    }
+
+    total_memory += node->data->memsize;
+
+    CalculateTotalMemory(node->left, total_memory);
+    CalculateTotalMemory(node->right, total_memory);
+
+    return;
+}
+
+void AllocateMemory(PCB* process){
+    // creates root node if not intialized
+    if(!root_memory_node){
+        root_memory_node = NewTreeNode(MAX_MEM_SIZE, true);
+    }
+
+    
+    struct TreeNode* found = NULL;
+    FindNextTreeNode(root_memory_node, process->memsize, &found);
+
+    if(found == NULL){
+        CalculateTotalMemory(root_memory_node, total_allocated_memory);
+        LogMemory(runningProcess, OVERFLOW_PROCESS);
+        return;
+    }
+
+    total_allocated_memory = 0;
+    CalculateTotalMemory(root_memory_node, total_allocated_memory);
+
+    found->data->isalloc = true;
+    found->data->process = process;
+    runningProcess_allocated_memory = found->data->memsize;
+}
+
+void DeAllocateMemory(PCB* process){
+    struct TreeNode* found = NULL;
+    FindProcessTreeNode(root_memory_node, process->id, &found);
+    if(found == NULL){
+        printf("Could not find node with process id: %d to de-allocate\n", process->id);
+        perror("Could not find node to de-allocate");
+        exit(EXIT_FAILURE);
+    }
+    total_allocated_memory = 0;
+    CalculateTotalMemory(root_memory_node, total_allocated_memory);
+    runningProcess_allocated_memory = found->data->memsize;
+    found->data->isalloc = false;
+    found->data->process = NULL;
+    found = NULL;
 }

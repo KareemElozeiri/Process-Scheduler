@@ -19,6 +19,7 @@ typedef short bool;
 #define SHKEY 300
 #define FAILURE_CODE -1
 #define MSG_QUEUE_KEY 2001
+#define MAX_MEM_SIZE 1024
 int msgQueueId;
 
 
@@ -39,6 +40,7 @@ typedef enum LoggerState {
     FINISHING_PROCESS,
     STOPPING_PROCESS,
     RESUMING_PROCESS,
+    OVERFLOW_PROCESS,
 } LoggerState;
 
 typedef struct PerfCalculation {
@@ -53,6 +55,7 @@ typedef struct ProcessParameters{
     int arrival_time;
     int execution_time;
     int priority;
+    int memsize;
 
 }ProcessParameters;
 
@@ -62,8 +65,9 @@ typedef struct PCB{
     pid_t process_id;
     ProcessState process_state;
     int arrival_time;
-    int priority;
     int execution_time;
+    int priority;
+    int memsize;
     int waiting_time;
     int remaining_time;
     int start_time;
@@ -79,6 +83,20 @@ typedef struct Node
     int priority;
     struct Node *next;
 }Node;
+
+typedef struct TreeNodeData
+{
+    int memsize;
+    bool isalloc;
+    PCB* process;
+}TreeNodeData;
+
+typedef struct TreeNode
+{
+    struct TreeNodeData* data;
+    struct TreeNode* left;
+    struct TreeNode* right;
+}TreeNode;
 
 ///==============================
 //don't mess with this variable//
